@@ -41,22 +41,15 @@ ULevelComponent::ULevelComponent()
 
 void ULevelComponent::LevelUpdate(int32 LevelOfBox)
 {
+	UE_LOG(LogTemp, Warning, TEXT("LevelOfBox: %i, Current Level: %i, Current Progress: %i, # Boxes this level: %i"), LevelOfBox, CurrentLevel, Progress, Levels[CurrentLevel - 1]);
 	if (LevelOfBox != CurrentLevel) return;
 	
 	Progress++;
 	if (Progress == Levels[CurrentLevel - 1])
 	{
+		Owner->LevelComplete(CurrentLevel + 1, StartingLocations[CurrentLevel], StartingRotations[CurrentLevel]);
 		Progress = 0;
 		CurrentLevel++;
-		Owner->LevelComplete(CurrentLevel, StartingLocations[CurrentLevel - 1], StartingRotations[CurrentLevel - 1]);
-		/*if (CurrentLevel == 5)
-		{
-			Owner->EndTheGame();
-		}
-		else
-		{
-			
-		}*/
 		UE_LOG(LogTemp, Warning, TEXT("ULevelComponent::LevelUpdate(): Leveled up to %i"), CurrentLevel);
 	}
 	else

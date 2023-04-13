@@ -58,8 +58,8 @@ void AConnectionBox::Tick(float DeltaTime)
 bool AConnectionBox::Use()
 {
 	if (!bIsUnconnected) return false;
+	bIsUnconnected = false;
 
-	//UE_LOG(LogTemp, Warning, TEXT("Use(): Is Unconnected; Connecting"));
 	ConnectBoxes();
 
 	return true;
@@ -96,7 +96,6 @@ void AConnectionBox::SetReady()
 
 void AConnectionBox::SetConnected()
 {
-	bIsUnconnected = false;
 	if (bIsReady)
 	{
 		Fill();

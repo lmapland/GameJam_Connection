@@ -39,7 +39,7 @@ void AProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 	if (OtherActor == this) return;
 	if (AEnemy* Enemy = Cast<AEnemy>(OtherActor)) return;
 	
-	UE_LOG(LogTemp, Warning, TEXT("OnSphereOverlap - OtherActor->GetName(): %s"), *OtherActor->GetName());
+	//UE_LOG(LogTemp, Warning, TEXT("OnSphereOverlap - OtherActor->GetName(): %s"), *OtherActor->GetName());
 	
 
 	if (AXtionsCharacter* Char = Cast<AXtionsCharacter>(OtherActor))
@@ -55,10 +55,6 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 	if (AEnemy* Enemy = Cast<AEnemy>(OtherActor)) return;
 	if (OtherActor == this) return;
 
-	if (OtherActor)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("AProjectile::OnHit() %s"), *OtherActor->GetName());
-	}
 	if (AXtionsCharacter* Char = Cast<AXtionsCharacter>(OtherActor))
 	{
 		Char->Damage(DamageAmount);

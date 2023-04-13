@@ -46,7 +46,7 @@ void AEnemy::CanFire()
 	{
 		bInterpToCharacter = true;
 
-		UE_LOG(LogTemp, Warning, TEXT("AEnemy::CanFire(): Firing"));
+		//UE_LOG(LogTemp, Warning, TEXT("AEnemy::CanFire(): Firing"));
 
 		// execute Montage
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
