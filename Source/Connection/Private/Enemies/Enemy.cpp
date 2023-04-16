@@ -21,11 +21,11 @@ void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	MyEnemy = UGameplayStatics::GetActorOfClass(this, AXtionsCharacter::StaticClass());
+	AActor* EnemyActor = UGameplayStatics::GetActorOfClass(this, AXtionsCharacter::StaticClass());
+	if (EnemyActor) MyEnemy = Cast<AXtionsCharacter>(EnemyActor);
 
 	if (ForeverParticles)
 	{
-		//UNiagaraComponent* ForeverComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ForeverParticles, GetActorLocation() - FVector(0.f, 0.f, 120.f));
 		ForeverComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ForeverParticles, GetActorLocation() - FVector(0.f, 0.f, 120.f));
 	}
 
@@ -40,7 +40,7 @@ void AEnemy::PostDie()
 
 void AEnemy::CanFire()
 {
-	if (!bAlive) return;
+	if (!bAlive || !MyEnemy->IsAlive()) return;
 
 	if (GetDistanceTo(MyEnemy) <= MaxFireDistance)
 	{
@@ -76,11 +76,9 @@ void AEnemy::SetInterpToCharacter(bool Interp)
 
 void AEnemy::Fire()
 {
-	if (!bAlive) return;
+	if (!bAlive || !MyEnemy->IsAlive()) return;
 
 	bInterpToCharacter = false;
-
-	//UE_LOG(LogTemp, Warning, TEXT("AEnemy::Fire(): Called"));
 
 	// execute on-fire event effect
 	if (FireParticles)

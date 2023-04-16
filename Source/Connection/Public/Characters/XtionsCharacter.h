@@ -83,4 +83,5 @@ private:
 public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void SetOverlay(UOverlayWidget* InOverlay) { Overlay = InOverlay; }
+	FORCEINLINE bool IsAlive() const { return bAlive; }
 };

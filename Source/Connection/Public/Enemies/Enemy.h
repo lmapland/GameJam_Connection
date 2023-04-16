@@ -30,7 +30,7 @@ public:
 	float MaxFireDistance = 4000.f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
-	AActor* MyEnemy;
+	AXtionsCharacter* MyEnemy;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	UAnimMontage* FireMontage;

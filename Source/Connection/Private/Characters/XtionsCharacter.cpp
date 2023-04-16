@@ -110,16 +110,15 @@ void AXtionsCharacter::SetOverlappedConnectionBox(AConnectionBox* InOverlappedBo
 
 void AXtionsCharacter::Damage(float Amount)
 {
+	if (!bAlive) return;
+
 	Health = FMath::Clamp(Health - Amount, 0.f, MaxHealth);
-	UE_LOG(LogTemp, Warning, TEXT("AXtionsCharacter::Damage(): Health / MaxHealth: %f / %f"), Health, MaxHealth);
 	if (Health == 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("AXtionsCharacter::Damage(): Killing player"))
 		Die();
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("AXtionsCharacter::Damage(): Calling Overlay->PlayerHurt();"))
 		Overlay->PlayerHurt();
 	}
 }
@@ -153,6 +152,8 @@ void AXtionsCharacter::EndTheGame()
 
 void AXtionsCharacter::Die()
 {
+	if (!bAlive) return;
+
 	bAlive = false;
 
 	Overlay->DisplayDeathText();
@@ -161,7 +162,7 @@ void AXtionsCharacter::Die()
 	GetMesh()->SetAllBodiesSimulatePhysics(true);
 	GetMesh()->WakeAllRigidBodies();
 
-	UE_LOG(LogTemp, Warning, TEXT("AXtionsCharacter::Die(): Calling PostDie();"))
+	UE_LOG(LogTemp, Warning, TEXT("AXtionsCharacter::Die(): Calling PostDie();"));
 	GetWorldTimerManager().SetTimer(DeathTimer, this, &AXtionsCharacter::PostDie, DeathTimout);
 }
 
