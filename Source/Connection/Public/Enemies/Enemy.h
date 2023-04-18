@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interfaces/CanTurnOn.h"
 #include "Enemy.generated.h"
 
 class AXtionsCharacter;
@@ -12,7 +13,7 @@ class AProjectile;
 class UNiagaraComponent;
 
 UCLASS()
-class CONNECTION_API AEnemy : public ACharacter
+class CONNECTION_API AEnemy : public ACharacter, public ICanTurnOn
 {
 	GENERATED_BODY()
 
@@ -25,6 +26,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void Fire();
+
+	virtual void Start() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 	float MaxFireDistance = 4000.f;

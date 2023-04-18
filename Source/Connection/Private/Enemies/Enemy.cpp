@@ -12,6 +12,8 @@
 AEnemy::AEnemy()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = false;
+	this->SetActorTickEnabled(false);
 
 	GetMesh()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
@@ -28,8 +30,6 @@ void AEnemy::BeginPlay()
 	{
 		ForeverComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ForeverParticles, GetActorLocation() - FVector(0.f, 0.f, 120.f));
 	}
-
-	GetWorldTimerManager().SetTimer(FireTimer, this, &AEnemy::CanFire, BetweenFiring);
 }
 
 void AEnemy::PostDie()
@@ -101,6 +101,12 @@ void AEnemy::Fire()
 		GetWorldTimerManager().SetTimer(FireTimer, this, &AEnemy::CanFire, BetweenFiring);
 		//UE_LOG(LogTemp, Warning, TEXT("AEnemy::Fire(): FireTimer set"));
 	}
+}
+
+void AEnemy::Start()
+{
+	this->SetActorTickEnabled(true);
+	GetWorldTimerManager().SetTimer(FireTimer, this, &AEnemy::CanFire, BetweenFiring);
 }
 
 void AEnemy::Tick(float DeltaTime)

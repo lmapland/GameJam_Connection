@@ -6,7 +6,6 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Connections/ConnectionBox.h"
-#include "ActorComponents/LevelComponent.h"
 #include "Widgets/OverlayWidget.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -14,15 +13,11 @@ AXtionsCharacter::AXtionsCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	Levels = CreateDefaultSubobject<ULevelComponent>(TEXT("LevelComponent"));
-	Levels->Setup(this);
-
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 400.f, 0.f);
-
 }
 
 void AXtionsCharacter::BeginPlay()
@@ -81,7 +76,6 @@ void AXtionsCharacter::Interact(const FInputActionValue& value)
 		UE_LOG(LogTemp, Warning, TEXT("Interact(): Level of box: %i "), OverlappedBox->Level);
 		// use was successful (box was unconnected); print something to the screen?
 		Overlay->DisplayConnectionText();
-		Levels->LevelUpdate(OverlappedBox->Level);
 	}
 }
 

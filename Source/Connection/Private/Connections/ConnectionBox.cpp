@@ -60,6 +60,7 @@ bool AConnectionBox::Use()
 	if (!bIsUnconnected) return false;
 	bIsUnconnected = false;
 
+	OnConnectDelegate.Broadcast(Level);
 	ConnectBoxes();
 
 	return true;

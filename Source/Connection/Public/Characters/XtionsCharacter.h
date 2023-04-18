@@ -8,7 +8,6 @@
 #include "XtionsCharacter.generated.h"
 
 class AConnectionBox;
-class ULevelComponent;
 class UOverlayWidget;
 
 UCLASS()
@@ -25,9 +24,6 @@ public:
 	void LevelComplete(int32 NewLevel, FVector NewLoc, FRotator NewRot);
 
 	void EndTheGame();
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	ULevelComponent* Levels;
 
 	/* Attributes */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes")
@@ -78,7 +74,7 @@ private:
 	FRotator TransportRot;
 
 	FTimerHandle DeathTimer;
-	float DeathTimout = 3.f;
+	float DeathTimout = 5.f;
 
 public:
 	UFUNCTION(BlueprintCallable)

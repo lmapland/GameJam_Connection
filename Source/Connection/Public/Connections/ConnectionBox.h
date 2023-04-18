@@ -6,6 +6,8 @@
 #include "ConnectionObject.h"
 #include "ConnectionBox.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnConnect, int32, InLevel);
+
 class UStaticMeshComponent;
 class USphereComponent;
 
@@ -45,6 +47,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Box Properties")
 	int32 Level;
+
+	UPROPERTY()
+	FOnConnect OnConnectDelegate;
 
 protected:
 	virtual void BeginPlay() override;
