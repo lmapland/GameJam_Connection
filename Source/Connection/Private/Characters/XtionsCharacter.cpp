@@ -36,6 +36,7 @@ void AXtionsCharacter::BeginPlay()
 
 	if (Overlay)
 	{
+		Overlay->SetLives(Health);
 		Overlay->DisplayTutorialText();
 	}
 }
@@ -102,19 +103,17 @@ void AXtionsCharacter::SetOverlappedConnectionBox(AConnectionBox* InOverlappedBo
 	OverlappedBox = InOverlappedBox;
 }
 
-void AXtionsCharacter::Damage(float Amount)
+void AXtionsCharacter::Damage(int32 Amount)
 {
 	if (!bAlive) return;
 
-	Health = FMath::Clamp(Health - Amount, 0.f, MaxHealth);
+	Health = FMath::Clamp(Health - Amount, 0, MaxHealth);
 	if (Health == 0)
 	{
 		Die();
 	}
-	else
-	{
-		Overlay->PlayerHurt();
-	}
+
+	Overlay->UpdateLives(-1);
 }
 
 void AXtionsCharacter::LevelComplete(int32 NewLevel, FVector NewLoc, FRotator NewRot)

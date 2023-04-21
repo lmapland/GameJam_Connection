@@ -93,3 +93,15 @@ void UOverlayWidget::DisplayWinText()
 		DeathText->SetVisibility(ESlateVisibility::Visible);
 	}
 }
+
+void UOverlayWidget::UpdateLives(int32 Amount)
+{
+	if (Amount < 0)
+	{
+		PlayerHurt();
+	}
+	else
+	{
+		PlayerGainedHealth();
+	}
+}

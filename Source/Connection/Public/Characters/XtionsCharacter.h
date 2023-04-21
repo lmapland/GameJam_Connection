@@ -20,17 +20,17 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	void SetOverlappedConnectionBox(AConnectionBox* InOverlappedBox);
-	void Damage(float Amount);
+	void Damage(int32 Amount);
 	void LevelComplete(int32 NewLevel, FVector NewLoc, FRotator NewRot);
 
 	void EndTheGame();
 
 	/* Attributes */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes")
-	float Health = 100.f;
+	int32 Health = 4; // 4 is easy, 2 is medium, 1 is hard
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes")
-	float MaxHealth = 100.f;
+	int32 MaxHealth = 4;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes")
 	float Stamina = 100.f;

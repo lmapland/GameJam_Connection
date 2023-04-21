@@ -34,22 +34,6 @@ void AProjectile::BeginPlay()
 	ProjectileMesh->OnComponentHit.AddDynamic(this, &AProjectile::OnHit);
 }
 
-void AProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	if (OtherActor == this) return;
-	if (AEnemy* Enemy = Cast<AEnemy>(OtherActor)) return;
-	
-	//UE_LOG(LogTemp, Warning, TEXT("OnSphereOverlap - OtherActor->GetName(): %s"), *OtherActor->GetName());
-	
-
-	if (AXtionsCharacter* Char = Cast<AXtionsCharacter>(OtherActor))
-	{
-		Char->Damage(DamageAmount);
-	}
-
-	Destroy();
-}
-
 void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
 {
 	if (AEnemy* Enemy = Cast<AEnemy>(OtherActor)) return;
