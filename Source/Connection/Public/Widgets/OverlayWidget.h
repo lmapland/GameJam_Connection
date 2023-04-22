@@ -17,16 +17,24 @@ class CONNECTION_API UOverlayWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	UFUNCTION(BlueprintImplementableEvent)
 	void DisplayConnectionText();
-	void HideConnectionText();
+
+	UFUNCTION(BlueprintImplementableEvent)
 	void DisplayLevelCompleteText();
-	void HideLevelCompleteText();
+
+	UFUNCTION(BlueprintImplementableEvent)
 	void DisplayTransportingText();
-	void HideTransportingText();
+
+	UFUNCTION(BlueprintImplementableEvent)
 	void DisplayTutorialText();
-	void HideTutorialText();
+
+	UFUNCTION(BlueprintImplementableEvent)
 	void DisplayDeathText();
+
+	UFUNCTION(BlueprintImplementableEvent)
 	void DisplayWinText();
+
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayerHurt();
@@ -45,29 +53,5 @@ public:
 	 */
 	UFUNCTION()
 	void UpdateLives(int32 Amount);
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))
-	class UTextBlock* ConnectionText;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))
-	class UTextBlock* LevelCompleteText;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))
-	class UTextBlock* TransportingText;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))
-	class UTextBlock* TutorialText;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))
-	class UTextBlock* DeathText;
-
-private:
-	FTimerHandle ConnectTimer;
-	FTimerHandle LevelTimer;
-	FTimerHandle TransportTimer;
-	FTimerHandle TutorialTimer;
-
-	float TextClearedTime = 5.f;
-	float TransportTime = 7.f;
 
 };
