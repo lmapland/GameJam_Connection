@@ -7,6 +7,7 @@
 #include "OverlayWidget.generated.h"
 
 class UProgressBar;
+class UOverlayWidgetController;
 
 /**
  *
@@ -17,22 +18,24 @@ class CONNECTION_API UOverlayWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintImplementableEvent)
+	void SetController(UOverlayWidgetController* InWidgetController);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void DisplayConnectionText();
 
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void DisplayLevelCompleteText();
 
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void DisplayTransportingText();
 
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void DisplayTutorialText();
 
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void DisplayDeathText();
 
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void DisplayWinText();
 
 
@@ -42,8 +45,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayerGainedHealth();
 	
-	/* The default is "easy" or 4 lives. Hard is 1, Medium is 2 */
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void SetLives(int32 DefaultLives);
 
 	/*
@@ -53,5 +55,9 @@ public:
 	 */
 	UFUNCTION()
 	void UpdateLives(int32 Amount);
+
+private:
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UOverlayWidgetController* WidgetController;
 
 };

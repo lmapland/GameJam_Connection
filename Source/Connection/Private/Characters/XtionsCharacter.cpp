@@ -5,9 +5,9 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "Connections/ConnectionBox.h"
-#include "Widgets/OverlayWidget.h"
 #include "Kismet/GameplayStatics.h"
+#include "Connections/ConnectionBox.h"
+#include "GameInstances/XtionsGameInstance.h"
 
 AXtionsCharacter::AXtionsCharacter()
 {
@@ -34,10 +34,10 @@ void AXtionsCharacter::BeginPlay()
 		}
 	}
 
-	if (Overlay)
+	UXtionsGameInstance* GameInstance = Cast<UXtionsGameInstance>(GetGameInstance());
+	if (GameInstance)
 	{
-		Overlay->SetLives(Health);
-		Overlay->DisplayTutorialText();
+		GameInstance->InitHUD(this, PlayerController);
 	}
 }
 
@@ -68,16 +68,9 @@ void AXtionsCharacter::Look(const FInputActionValue& Value)
 
 void AXtionsCharacter::Interact(const FInputActionValue& value)
 {
-	//UE_LOG(LogTemp, Warning, TEXT("Interact(): Entered"));
 	if (!bAlive || !OverlappedBox) return;
 
-	//UE_LOG(LogTemp, Warning, TEXT("Interact(): OverlappedBox exists on character"));
-	if (OverlappedBox->Use())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Interact(): Level of box: %i "), OverlappedBox->Level);
-		// use was successful (box was unconnected); print something to the screen?
-		Overlay->DisplayConnectionText();
-	}
+	OverlappedBox->Use();
 }
 
 void AXtionsCharacter::Tick(float DeltaTime)
@@ -98,11 +91,6 @@ void AXtionsCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	}
 }
 
-void AXtionsCharacter::SetOverlappedConnectionBox(AConnectionBox* InOverlappedBox)
-{
-	OverlappedBox = InOverlappedBox;
-}
-
 void AXtionsCharacter::Damage(int32 Amount)
 {
 	if (!bAlive) return;
@@ -113,34 +101,7 @@ void AXtionsCharacter::Damage(int32 Amount)
 		Die();
 	}
 
-	Overlay->UpdateLives(-1);
-}
-
-void AXtionsCharacter::LevelComplete(int32 NewLevel, FVector NewLoc, FRotator NewRot)
-{
-	UE_LOG(LogTemp, Warning, TEXT("AXtionsCharacter::LevelComplete(): Entered"));
-
-	Overlay->DisplayLevelCompleteText();
-	Overlay->DisplayTransportingText();
-
-	if (NewLevel == 5)
-	{
-		Overlay->DisplayWinText();
-		GetWorldTimerManager().SetTimer(TransportTimer, this, &AXtionsCharacter::EndTheGame, 6.f);
-	}
-	else
-	{
-		// Transport character to next level
-		TransportLoc = NewLoc;
-		TransportRot = NewRot;
-
-		GetWorldTimerManager().SetTimer(TransportTimer, this, &AXtionsCharacter::TransportCharacter, 6.f);
-	}
-}
-
-void AXtionsCharacter::EndTheGame()
-{
-	UGameplayStatics::OpenLevel(GetWorld(), "MainMenu");
+	OnLivesUpdated.Broadcast(-1);
 }
 
 void AXtionsCharacter::Die()
@@ -149,24 +110,22 @@ void AXtionsCharacter::Die()
 
 	bAlive = false;
 
-	Overlay->DisplayDeathText();
+	OnCharacterDeath.Broadcast();
 
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetMesh()->SetAllBodiesSimulatePhysics(true);
 	GetMesh()->WakeAllRigidBodies();
 
-	UE_LOG(LogTemp, Warning, TEXT("AXtionsCharacter::Die(): Calling PostDie();"));
 	GetWorldTimerManager().SetTimer(DeathTimer, this, &AXtionsCharacter::PostDie, DeathTimout);
 }
 
 void AXtionsCharacter::PostDie()
 {
-	UE_LOG(LogTemp, Warning, TEXT("AXtionsCharacter::PostDie(): Loading the MainMenu"))
 	UGameplayStatics::OpenLevel(GetWorld(), "MainMenu");
 }
 
-void AXtionsCharacter::TransportCharacter()
+void AXtionsCharacter::TransportCharacter(FVector Location, FRotator Rotation)
 {
-	SetActorLocation(TransportLoc);
-	SetActorRotation(TransportRot);
+	SetActorLocation(Location);
+	SetActorRotation(Rotation);
 }

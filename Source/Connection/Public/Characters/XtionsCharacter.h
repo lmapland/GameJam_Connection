@@ -7,6 +7,9 @@
 #include "InputActionValue.h"
 #include "XtionsCharacter.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLivesUpdatedSignature, int32, Amount);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterDeathSignature);
+
 class AConnectionBox;
 class UOverlayWidget;
 
@@ -19,11 +22,8 @@ public:
 	AXtionsCharacter();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	void SetOverlappedConnectionBox(AConnectionBox* InOverlappedBox);
 	void Damage(int32 Amount);
-	void LevelComplete(int32 NewLevel, FVector NewLoc, FRotator NewRot);
-
-	void EndTheGame();
+	void TransportCharacter(FVector Location, FRotator Rotation);
 
 	/* Attributes */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes")
@@ -38,7 +38,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes")
 	float MaxStamina = 100.f;
 
-	UOverlayWidget* Overlay;
+	UPROPERTY()
+	FOnLivesUpdatedSignature OnLivesUpdated;
+
+	UPROPERTY()
+	FOnCharacterDeathSignature OnCharacterDeath;
 
 protected:
 	virtual void BeginPlay() override;
@@ -61,7 +65,6 @@ private:
 	void Interact(const FInputActionValue& value);
 	void Die();
 	void PostDie();
-	void TransportCharacter();
 
 	APlayerController* PlayerController;
 
@@ -69,7 +72,6 @@ private:
 
 	bool bAlive = true;
 
-	FTimerHandle TransportTimer;
 	FVector TransportLoc;
 	FRotator TransportRot;
 
@@ -77,7 +79,7 @@ private:
 	float DeathTimout = 5.f;
 
 public:
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void SetOverlay(UOverlayWidget* InOverlay) { Overlay = InOverlay; }
 	FORCEINLINE bool IsAlive() const { return bAlive; }
+	FORCEINLINE int32 GetStartLives() const { return Health; }
+	FORCEINLINE void SetOverlappedConnectionBox(AConnectionBox* InOverlappedBox) { OverlappedBox = InOverlappedBox; }
 };

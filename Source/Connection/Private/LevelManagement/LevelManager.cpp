@@ -40,7 +40,6 @@ ULevelManager::ULevelManager()
 	StartingLocations.Add(FVector(18160.f, 6360.f, 5960.f));
 	StartingRotations.Add(FRotator(0.f, 0.f, 0.f));
 
-	//UE_LOG(LogTemp, Warning, TEXT("ULevelManager(): CurrentLevel %i"), CurrentLevel);
 }
 
 void ULevelManager::Setup()
@@ -72,9 +71,9 @@ void ULevelManager::Setup()
 
 	// Set player character
 	AActor* ActorOwner = UGameplayStatics::GetActorOfClass(this, AXtionsCharacter::StaticClass());
-	if (ActorOwner) Owner = Cast<AXtionsCharacter>(ActorOwner);
+	if (ActorOwner) Player = Cast<AXtionsCharacter>(ActorOwner);
 
-	UE_LOG(LogTemp, Warning, TEXT("Setup(): Complete"));
+	OnLaunchTutorial.Broadcast();
 }
 
 /*
@@ -85,7 +84,6 @@ void ULevelManager::Setup()
 void ULevelManager::CharacterInPlay(int32 InLevel)
 {
 	if (bCurrentLevelStarted) return;
-	UE_LOG(LogTemp, Warning, TEXT("CharacterInPlay(): InLevel %i"), InLevel);
 	bCurrentLevelStarted = true;
 
 	TArray<AActor*> AllActors;
@@ -104,20 +102,38 @@ void ULevelManager::CharacterInPlay(int32 InLevel)
 
 void ULevelManager::ConnectionComplete(int32 LevelOfBox)
 {
-	UE_LOG(LogTemp, Warning, TEXT("ConnectionComplete: %i, Current Level: %i, Current Progress: %i, # Boxes this level: %i"), LevelOfBox, CurrentLevel, Progress, Levels[CurrentLevel - 1]);
+	//UE_LOG(LogTemp, Warning, TEXT("ConnectionComplete: %i, Current Level: %i, Current Progress: %i, # Boxes this level: %i"), LevelOfBox, CurrentLevel, Progress, Levels[CurrentLevel - 1]);
 	if (LevelOfBox != CurrentLevel) return;
 
+	OnConnectionMade.Broadcast();
 	Progress++;
+
 	if (Progress == Levels[CurrentLevel - 1])
 	{
-		Owner->LevelComplete(CurrentLevel + 1, StartingLocations[CurrentLevel], StartingRotations[CurrentLevel]);
+		OnLevelComplete.Broadcast();
 		Progress = 0;
 		CurrentLevel++;
 		bCurrentLevelStarted = false;
-		UE_LOG(LogTemp, Warning, TEXT("ULevelManager::ConnectionComplete(): Leveled up to %i"), CurrentLevel);
+
+		if (CurrentLevel == MaxLevel)
+		{
+			OnPlayerWin.Broadcast();
+			GetWorld()->GetTimerManager().SetTimer(TransportTimer, this, &ULevelManager::EndTheGame, 6.f);
+		}
+		else
+		{
+			OnCharacterTransport.Broadcast();
+			GetWorld()->GetTimerManager().SetTimer(TransportTimer, this, &ULevelManager::TransportPlayer, 6.f);
+		}
 	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("ULevelManager::ConnectionComplete(): Did not level up"));
-	}
+}
+
+void ULevelManager::EndTheGame()
+{
+	UGameplayStatics::OpenLevel(GetWorld(), "MainMenu");
+}
+
+void ULevelManager::TransportPlayer()
+{
+	Player->TransportCharacter(StartingLocations[CurrentLevel - 1], StartingRotations[CurrentLevel - 1]);
 }

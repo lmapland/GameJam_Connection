@@ -6,6 +6,12 @@
 #include "UObject/NoExportTypes.h"
 #include "LevelManager.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLaunchTutorialSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerWinSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterTransportSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLevelCompleteSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnConnectionMadeSignature);
+
 class AStartZone;
 class AXtionsCharacter;
 
@@ -35,11 +41,27 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Setup();
 
+	UPROPERTY()
+	FOnLaunchTutorialSignature OnLaunchTutorial;
+	
+	UPROPERTY()
+	FOnPlayerWinSignature OnPlayerWin;
+
+	UPROPERTY()
+	FOnCharacterTransportSignature OnCharacterTransport;
+
+	UPROPERTY()
+	FOnLevelCompleteSignature OnLevelComplete;
+
+	UPROPERTY()
+	FOnConnectionMadeSignature OnConnectionMade;
+
 private:
+	void EndTheGame();
+	void TransportPlayer();
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes", meta = (AllowPrivateAccess = "true"))
 	int32 CurrentLevel = 1;
-
-	int32 TotalLevels = 6;
 
 	bool bCurrentLevelStarted = false;
 	
@@ -54,6 +76,10 @@ private:
 
 	int32 Progress = 0; // if the current level has 2 ConnectionBoxes, then this can either be 0 or 1
 
-	TObjectPtr<AXtionsCharacter> Owner;
+	TObjectPtr<AXtionsCharacter> Player;
+
+	int32 MaxLevel = 5;
+
+	FTimerHandle TransportTimer;
 
 };
