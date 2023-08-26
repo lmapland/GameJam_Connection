@@ -6,7 +6,8 @@
 #include "Blueprint/UserWidget.h"
 #include "OverlayWidget.generated.h"
 
-class UProgressBar;
+class UOverlay;
+class UTextBlock;
 class UOverlayWidgetController;
 
 /**
@@ -20,24 +21,23 @@ class CONNECTION_API UOverlayWidget : public UUserWidget
 public:
 	void SetController(UOverlayWidgetController* InWidgetController);
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	UFUNCTION()
 	void DisplayConnectionText();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	UFUNCTION()
 	void DisplayLevelCompleteText();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	UFUNCTION()
 	void DisplayTransportingText();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	UFUNCTION()
 	void DisplayTutorialText();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	UFUNCTION()
 	void DisplayDeathText();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	UFUNCTION()
 	void DisplayWinText();
-
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayerHurt();
@@ -56,8 +56,50 @@ public:
 	UFUNCTION()
 	void UpdateLives(int32 Amount);
 
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UOverlay* Section1;
+	
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UOverlay* Section2;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UOverlay* Section3;
+	
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UOverlay* Section4;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UTextBlock* Section2Text;
+	
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UTextBlock* Section4Text;
+
+	int32 CurrentLives = 0;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool GameOver = false;
+
+protected:
+	virtual void NativeConstruct() override;
+
 private:
+	void HideSection1Text();
+	void HideSection2Text();
+	void HideSection3Text();
+	void HideSection4Text();
+
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	UOverlayWidgetController* WidgetController;
 
+	FTimerHandle Section1Handle;
+	FTimerHandle Section2Handle;
+	FTimerHandle Section3Handle;
+	FTimerHandle Section4Handle;
+
+	float TutorialTime = 6.f;
+	float TransportingTime = 6.f;
+	float DeathTime = 5.f;
+	float WinTime = 5.f;
+	float LevelCompleteTime = 3.f;
+	float ConnectionTime = 3.f;
 };
