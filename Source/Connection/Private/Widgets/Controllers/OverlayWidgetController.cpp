@@ -20,6 +20,7 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 	LevelManager->OnLevelComplete.AddDynamic(this, &UOverlayWidgetController::DisplayLevelCompleteText);
 	Character->OnLivesUpdated.AddDynamic(this, &UOverlayWidgetController::UpdateHUDLives);
 	Character->OnCharacterDeath.AddDynamic(this, &UOverlayWidgetController::DisplayDeathText);
+	Character->OnOverlappingBox.AddDynamic(this, &UOverlayWidgetController::DisplayInterationText);
 }
 
 void UOverlayWidgetController::BroadcastInitialValues()
@@ -60,4 +61,9 @@ void UOverlayWidgetController::DisplayConnectionText()
 void UOverlayWidgetController::DisplayLevelCompleteText()
 {
 	OnShowConnectionMadeText.Broadcast();
+}
+
+void UOverlayWidgetController::DisplayInterationText(bool bOverlapping)
+{
+	OnShowInteractionText.Broadcast(bOverlapping);
 }

@@ -39,6 +39,9 @@ public:
 	UFUNCTION()
 	void DisplayWinText();
 
+	UFUNCTION()
+	void DisplayInteractionText(bool bIsVisible);
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayerHurt();
 	
@@ -73,6 +76,9 @@ public:
 	
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UTextBlock* Section4Text;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UTextBlock* InteractionText;
 
 	int32 CurrentLives = 0;
 

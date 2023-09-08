@@ -10,6 +10,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnConnect, int32, InLevel);
 
 class UStaticMeshComponent;
 class USphereComponent;
+class UNiagaraSystem;
 
 UCLASS()
 class CONNECTION_API AConnectionBox : public AConnectionObject
@@ -28,6 +29,9 @@ public:
 	void BoxesAreConnected();
 
 	void Fill();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void FillWithColor();
 
 	virtual void SetReady() override;
 
@@ -50,6 +54,10 @@ public:
 
 	UPROPERTY()
 	FOnConnect OnConnectDelegate;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile Properties")
+	UNiagaraSystem* ConnectedParticles;
+
 
 protected:
 	virtual void BeginPlay() override;

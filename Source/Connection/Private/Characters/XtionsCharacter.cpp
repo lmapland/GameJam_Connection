@@ -70,6 +70,7 @@ void AXtionsCharacter::Interact(const FInputActionValue& value)
 {
 	if (!bAlive || !OverlappedBox) return;
 
+	OnOverlappingBox.Broadcast(false);
 	OverlappedBox->Use();
 }
 
@@ -127,5 +128,14 @@ void AXtionsCharacter::PostDie()
 void AXtionsCharacter::TransportCharacter(FVector Location, FRotator Rotation)
 {
 	SetActorLocation(Location);
+	PlayerController->SetControlRotation(Rotation);
 	SetActorRotation(Rotation);
+}
+
+void AXtionsCharacter::SetOverlappedConnectionBox(AConnectionBox* InOverlappedBox)
+{
+	if (InOverlappedBox) OnOverlappingBox.Broadcast(true);
+	else OnOverlappingBox.Broadcast(false);
+
+	OverlappedBox = InOverlappedBox;
 }

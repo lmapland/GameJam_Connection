@@ -9,6 +9,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLivesUpdatedSignature, int32, Amount);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterDeathSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnOverlappingBox, bool, bIsOverlapping);
 
 class AConnectionBox;
 class UOverlayWidget;
@@ -24,6 +25,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	void Damage(int32 Amount);
 	void TransportCharacter(FVector Location, FRotator Rotation);
+	void SetOverlappedConnectionBox(AConnectionBox* InOverlappedBox);
 
 	/* Attributes */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes")
@@ -43,6 +45,9 @@ public:
 
 	UPROPERTY()
 	FOnCharacterDeathSignature OnCharacterDeath;
+
+	UPROPERTY()
+	FOnOverlappingBox OnOverlappingBox;
 
 protected:
 	virtual void BeginPlay() override;
@@ -81,5 +86,4 @@ private:
 public:
 	FORCEINLINE bool IsAlive() const { return bAlive; }
 	FORCEINLINE int32 GetStartLives() const { return Health; }
-	FORCEINLINE void SetOverlappedConnectionBox(AConnectionBox* InOverlappedBox) { OverlappedBox = InOverlappedBox; }
 };

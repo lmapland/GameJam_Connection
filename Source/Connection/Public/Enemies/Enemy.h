@@ -41,18 +41,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	UNiagaraSystem* ForeverParticles;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
-	UNiagaraSystem* FireParticles; // Executed immediately when fired
-	
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
-	//UNiagaraSystem* TrailParticles; // these might be part of the projectile, actually
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
-	UNiagaraSystem* ImpactParticles;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
-	float ProjectileForce = 3000.f;
-	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 	TSubclassOf<AProjectile> ProjectileClass;
 

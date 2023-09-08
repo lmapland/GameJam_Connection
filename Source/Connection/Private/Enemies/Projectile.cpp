@@ -4,8 +4,9 @@
 #include "Enemies/Projectile.h"
 #include "Components/SphereComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "Characters/XtionsCharacter.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "Characters/XtionsCharacter.h"
 #include "Enemies/Enemy.h"
 
 AProjectile::AProjectile()
@@ -32,6 +33,11 @@ void AProjectile::BeginPlay()
 	Super::BeginPlay();
 
 	ProjectileMesh->OnComponentHit.AddDynamic(this, &AProjectile::OnHit);
+
+	if (FireballParticles)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAttached(FireballParticles, GetMesh(), FName(""), GetActorLocation(), GetActorRotation(), EAttachLocation::KeepWorldPosition, true);
+	}
 }
 
 void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
@@ -50,7 +56,10 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 
 void AProjectile::Explode()
 {
-	UE_LOG(LogTemp, Warning, TEXT("BOOM!"));
+	if (ExplodeParticles)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ExplodeParticles, GetActorLocation());
+	}
 }
 
 void AProjectile::Tick(float DeltaTime)
@@ -58,9 +67,3 @@ void AProjectile::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
-
-void AProjectile::FireInDirection(const FVector& ShootDirection)
-{
-	ProjectileMovementComponent->Velocity = ShootDirection * ProjectileMovementComponent->InitialSpeed;
-}
-

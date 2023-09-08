@@ -80,12 +80,6 @@ void AEnemy::Fire()
 
 	bInterpToCharacter = false;
 
-	// execute on-fire event effect
-	if (FireParticles)
-	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), FireParticles, GetActorLocation());
-	}
-	
 	// execute sound
 
 	AProjectile* Projectile = SpawnProjectile();

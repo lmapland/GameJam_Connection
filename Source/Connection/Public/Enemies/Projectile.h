@@ -9,6 +9,7 @@
 class USphereComponent;
 class UCapsuleComponent;
 class UProjectileMovementComponent;
+class UNiagaraSystem;
 
 UCLASS()
 class CONNECTION_API AProjectile : public AActor
@@ -18,7 +19,6 @@ class CONNECTION_API AProjectile : public AActor
 public:
 	AProjectile();
 	virtual void Tick(float DeltaTime) override;
-	void FireInDirection(const FVector& ShootDirection);
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile Properties")
 	UStaticMeshComponent* ProjectileMesh;
@@ -28,6 +28,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile Properties")
 	int32 DamageAmount = 1;
+	
+	UPROPERTY(EditAnywhere, Category = "Projectile Properties")
+	UNiagaraSystem* ExplodeParticles;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile Properties")
+	UNiagaraSystem* FireballParticles;
 
 protected:
 	virtual void BeginPlay() override;

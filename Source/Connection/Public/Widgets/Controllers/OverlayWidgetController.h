@@ -14,6 +14,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnShowPlayerWinTextSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnShowCharacterTransportTextSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnShowLevelCompleteTextSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnShowConnectionMadeTextSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnShowInteractionText, bool, isOverlapping);
 
 class AXtionsCharacter;
 class ULevelManager;
@@ -54,6 +55,9 @@ public:
 	UPROPERTY()
 	FOnShowConnectionMadeTextSignature OnShowConnectionMadeText;
 
+	UPROPERTY()
+	FOnShowInteractionText OnShowInteractionText;
+
 private:
 	UFUNCTION()
 	void DisplayTutorialText();
@@ -75,6 +79,9 @@ private:
 
 	UFUNCTION()
 	void DisplayLevelCompleteText();
+
+	UFUNCTION()
+	void DisplayInterationText(bool bOverlapping);
 
 	UPROPERTY()
 	ULevelManager* LevelManager;

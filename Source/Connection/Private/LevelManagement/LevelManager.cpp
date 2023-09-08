@@ -18,17 +18,17 @@ ULevelManager::ULevelManager()
 	// Index 1 - Level 2
 	Levels.Add(1);
 	StartingLocations.Add(FVector(19694.f, -451.f, 5946.f));
-	StartingRotations.Add(FRotator(0.f, 0.f, 0.f));
+	StartingRotations.Add(FRotator(0.f, 90.f, 0.f));
 
 	// Index 2 - Level 3
 	Levels.Add(2);
 	StartingLocations.Add(FVector(17850.f, 2532.f, 5946.f));
-	StartingRotations.Add(FRotator(0.f, 0.f, 0.f));
+	StartingRotations.Add(FRotator(0.f, -90.f, 0.f));
 
 	// Index 3 - Level 4
 	Levels.Add(2);
 	StartingLocations.Add(FVector(18196.f, 6319.f, 5960.f));
-	StartingRotations.Add(FRotator(0.f, 0.f, 0.f));
+	StartingRotations.Add(FRotator(0.f, -90.f, 0.f));
 
 	// Index 4 - Level 5
 	Levels.Add(1);

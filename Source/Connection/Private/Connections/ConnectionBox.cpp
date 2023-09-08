@@ -4,9 +4,10 @@
 #include "Connections/ConnectionBox.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "Characters/XtionsCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "NiagaraFunctionLibrary.h"
+#include "Characters/XtionsCharacter.h"
 #include "Enemies/Enemy.h"
 
 AConnectionBox::AConnectionBox()
@@ -62,6 +63,7 @@ bool AConnectionBox::Use()
 
 	OnConnectDelegate.Broadcast(Level);
 	ConnectBoxes();
+	AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	return true;
 }
@@ -84,6 +86,11 @@ void AConnectionBox::BoxesAreConnected()
 		}
 	}
 	SetConnected();
+
+	if (ConnectedParticles)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ConnectedParticles, GetActorLocation() + FVector(0.f, 0.f, 60.f));
+	}
 }
 
 void AConnectionBox::SetReady()
@@ -106,8 +113,8 @@ void AConnectionBox::SetConnected()
 void AConnectionBox::Fill()
 {
 	bIsFilled = true;
+	FillWithColor();
 
-	// update material, call SetReady() on the next object.
 	if (NextPiece)
 	{
 		NextPiece->SetReady();

@@ -35,6 +35,7 @@ void UOverlayWidget::NativeConstruct()
 	Section2->SetVisibility(ESlateVisibility::Hidden);
 	Section3->SetVisibility(ESlateVisibility::Hidden);
 	Section4->SetVisibility(ESlateVisibility::Hidden);
+	InteractionText->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UOverlayWidget::SetController(UOverlayWidgetController* InWidgetController)
@@ -49,6 +50,7 @@ void UOverlayWidget::SetController(UOverlayWidgetController* InWidgetController)
 	WidgetController->OnShowCharacterTransportText.AddDynamic(this, &UOverlayWidget::DisplayTransportingText);
 	WidgetController->OnShowLevelCompleteText.AddDynamic(this, &UOverlayWidget::DisplayLevelCompleteText);
 	WidgetController->OnShowConnectionMadeText.AddDynamic(this, &UOverlayWidget::DisplayConnectionText);
+	WidgetController->OnShowInteractionText.AddDynamic(this, &UOverlayWidget::DisplayInteractionText);
 }
 
 void UOverlayWidget::DisplayConnectionText()
@@ -120,6 +122,15 @@ void UOverlayWidget::DisplayWinText()
 		Section3->SetVisibility(ESlateVisibility::Hidden);
 	}
 	GetWorld()->GetTimerManager().SetTimer(Section4Handle, this, &UOverlayWidget::HideSection4Text, WinTime);
+}
+
+void UOverlayWidget::DisplayInteractionText(bool bIsVisible)
+{
+	if (InteractionText)
+	{
+		if (bIsVisible)	InteractionText->SetVisibility(ESlateVisibility::Visible);
+		else InteractionText->SetVisibility(ESlateVisibility::Hidden);
+	}
 }
 
 void UOverlayWidget::HideSection1Text()
