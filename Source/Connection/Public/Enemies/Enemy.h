@@ -11,6 +11,7 @@ class AXtionsCharacter;
 class UNiagaraSystem;
 class AProjectile;
 class UNiagaraComponent;
+class USoundBase;
 
 UCLASS()
 class CONNECTION_API AEnemy : public ACharacter, public ICanTurnOn
@@ -29,22 +30,25 @@ public:
 
 	virtual void Start() override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy|Combat")
 	float MaxFireDistance = 4000.f;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Enemy|Combat")
 	AXtionsCharacter* MyEnemy;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Combat")
 	UAnimMontage* FireMontage;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Combat")
 	UNiagaraSystem* ForeverParticles;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
+	UPROPERTY(EditAnywhere, Category = "Enemy|Attributes")
+	USoundBase* FireSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy|Combat")
 	TSubclassOf<AProjectile> ProjectileClass;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy|Combat")
 	int32 Level = 0;
 
 protected:
@@ -55,6 +59,7 @@ private:
 	void CanFire();
 	AProjectile* SpawnProjectile();
 	void SetInterpToCharacter(bool Interp);
+	void PlaySound(USoundBase* SoundToPlay);
 
 	FTimerHandle DeathTimer;
 	float UntilDisappear = 4.f;

@@ -13,6 +13,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnOverlappingBox, bool, bIsOverlapp
 
 class AConnectionBox;
 class UOverlayWidget;
+class USoundBase;
 
 UCLASS()
 class CONNECTION_API AXtionsCharacter : public ACharacter
@@ -28,17 +29,11 @@ public:
 	void SetOverlappedConnectionBox(AConnectionBox* InOverlappedBox);
 
 	/* Attributes */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Attributes")
 	int32 Health = 4; // 4 is easy, 2 is medium, 1 is hard
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Attributes")
 	int32 MaxHealth = 4;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes")
-	float Stamina = 100.f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes")
-	float MaxStamina = 100.f;
 
 	UPROPERTY()
 	FOnLivesUpdatedSignature OnLivesUpdated;
@@ -48,20 +43,23 @@ public:
 
 	UPROPERTY()
 	FOnOverlappingBox OnOverlappingBox;
+	
+	UPROPERTY(EditAnywhere, Category = "Character|Attributes")
+	USoundBase* OnDamageSound;
 
 protected:
 	virtual void BeginPlay() override;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Input")
 	class UInputMappingContext* CharMappingContext;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Input")
 	class UInputAction* MoveAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Input")
 	class UInputAction* LookAction;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Input")
 	class UInputAction* InteractAction;
 
 private:
@@ -70,6 +68,7 @@ private:
 	void Interact(const FInputActionValue& value);
 	void Die();
 	void PostDie();
+	void PlaySound(USoundBase* SoundToPlay);
 
 	APlayerController* PlayerController;
 

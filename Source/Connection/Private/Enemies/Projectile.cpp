@@ -5,6 +5,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Characters/XtionsCharacter.h"
 #include "Enemies/Enemy.h"
@@ -34,10 +35,7 @@ void AProjectile::BeginPlay()
 
 	ProjectileMesh->OnComponentHit.AddDynamic(this, &AProjectile::OnHit);
 
-	if (FireballParticles)
-	{
-		UNiagaraFunctionLibrary::SpawnSystemAttached(FireballParticles, GetMesh(), FName(""), GetActorLocation(), GetActorRotation(), EAttachLocation::KeepWorldPosition, true);
-	}
+	SpawnParticles(FireballParticles, GetActorLocation(), true);
 }
 
 void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
@@ -56,9 +54,30 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 
 void AProjectile::Explode()
 {
-	if (ExplodeParticles)
+	SpawnParticles(ExplodeParticles, GetActorLocation());
+	PlaySound(ExplodeSound);
+}
+
+void AProjectile::SpawnParticles(UNiagaraSystem* ParticlesToSpawn, FVector LocationToSpawn, bool bIsAttached)
+{
+	if (ParticlesToSpawn)
 	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ExplodeParticles, GetActorLocation());
+		if (bIsAttached)
+		{
+			UNiagaraFunctionLibrary::SpawnSystemAttached(ParticlesToSpawn, GetMesh(), NAME_None, LocationToSpawn, GetActorRotation(), EAttachLocation::KeepWorldPosition, true);
+		}
+		else
+		{
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ParticlesToSpawn, LocationToSpawn);
+		}
+	}
+}
+
+void AProjectile::PlaySound(USoundBase* SoundToPlay)
+{
+	if (SoundToPlay)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, SoundToPlay, GetActorLocation());
 	}
 }
 

@@ -96,6 +96,8 @@ void AXtionsCharacter::Damage(int32 Amount)
 {
 	if (!bAlive) return;
 
+	PlaySound(OnDamageSound);
+
 	Health = FMath::Clamp(Health - Amount, 0, MaxHealth);
 	if (Health == 0)
 	{
@@ -138,4 +140,12 @@ void AXtionsCharacter::SetOverlappedConnectionBox(AConnectionBox* InOverlappedBo
 	else OnOverlappingBox.Broadcast(false);
 
 	OverlappedBox = InOverlappedBox;
+}
+
+void AXtionsCharacter::PlaySound(USoundBase* SoundToPlay)
+{
+	if (SoundToPlay)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, SoundToPlay, GetActorLocation());
+	}
 }

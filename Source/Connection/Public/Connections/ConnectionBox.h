@@ -11,6 +11,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnConnect, int32, InLevel);
 class UStaticMeshComponent;
 class USphereComponent;
 class UNiagaraSystem;
+class USoundBase;
 
 UCLASS()
 class CONNECTION_API AConnectionBox : public AConnectionObject
@@ -34,7 +35,6 @@ public:
 	void FillWithColor();
 
 	virtual void SetReady() override;
-
 	void SetConnected();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Box Properties")
@@ -55,12 +55,18 @@ public:
 	UPROPERTY()
 	FOnConnect OnConnectDelegate;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile Properties")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Box Properties")
 	UNiagaraSystem* ConnectedParticles;
-
+	
+	UPROPERTY(EditAnywhere, Category = "Box Properties")
+	USoundBase* UseInitialSound;
+	
+	UPROPERTY(EditAnywhere, Category = "Box Properties")
+	USoundBase* UseCompleteSound;
 
 protected:
 	virtual void BeginPlay() override;
+
 	UFUNCTION()
 	void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
@@ -68,6 +74,9 @@ protected:
 	void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 private:
+	void SpawnParticles(UNiagaraSystem* ParticlesToSpawn, FVector LocationToSpawn);
+	void PlaySound(USoundBase* SoundToPlay);
+
 	/*
 	* if Connected, cannot be connected again
 	* if Unconnected, cannot be Filled, even if Ready
@@ -76,9 +85,11 @@ private:
 
 	/* Internally, junction is Unconnected */
 	bool bIsUnconnected = true;
+
 	/* Indicates whether previous piece of chain is Filled */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	bool bIsReady = false; // ready to be "filled"
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	bool bIsFilled = false;
 };

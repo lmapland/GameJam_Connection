@@ -10,6 +10,7 @@ class USphereComponent;
 class UCapsuleComponent;
 class UProjectileMovementComponent;
 class UNiagaraSystem;
+class USoundBase;
 
 UCLASS()
 class CONNECTION_API AProjectile : public AActor
@@ -34,6 +35,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile Properties")
 	UNiagaraSystem* FireballParticles;
+	
+	UPROPERTY(EditAnywhere, Category = "Projectile Properties")
+	USoundBase* ExplodeSound;
 
 protected:
 	virtual void BeginPlay() override;
@@ -43,6 +47,8 @@ protected:
 
 private:
 	void Explode();
+	void SpawnParticles(UNiagaraSystem* ParticlesToSpawn, FVector LocationToSpawn, bool bIsAttached = false);
+	void PlaySound(USoundBase* SoundToPlay);
 
 public:
 	FORCEINLINE UStaticMeshComponent* GetMesh() const { return ProjectileMesh; }

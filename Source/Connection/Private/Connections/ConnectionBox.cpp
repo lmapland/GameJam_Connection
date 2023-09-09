@@ -64,6 +64,7 @@ bool AConnectionBox::Use()
 	OnConnectDelegate.Broadcast(Level);
 	ConnectBoxes();
 	AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	PlaySound(UseInitialSound);
 
 	return true;
 }
@@ -87,10 +88,8 @@ void AConnectionBox::BoxesAreConnected()
 	}
 	SetConnected();
 
-	if (ConnectedParticles)
-	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ConnectedParticles, GetActorLocation() + FVector(0.f, 0.f, 60.f));
-	}
+	SpawnParticles(ConnectedParticles, GetActorLocation() + FVector(0.f, 0.f, 60.f));
+	PlaySound(UseCompleteSound);
 }
 
 void AConnectionBox::SetReady()
@@ -107,6 +106,22 @@ void AConnectionBox::SetConnected()
 	if (bIsReady)
 	{
 		Fill();
+	}
+}
+
+void AConnectionBox::SpawnParticles(UNiagaraSystem* ParticlesToSpawn, FVector LocationToSpawn)
+{
+	if (ParticlesToSpawn)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ParticlesToSpawn, LocationToSpawn);
+	}
+}
+
+void AConnectionBox::PlaySound(USoundBase* SoundToPlay)
+{
+	if (SoundToPlay)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, SoundToPlay, GetActorLocation());
 	}
 }
 

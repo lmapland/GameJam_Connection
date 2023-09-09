@@ -80,9 +80,9 @@ void AEnemy::Fire()
 
 	bInterpToCharacter = false;
 
-	// execute sound
-
 	AProjectile* Projectile = SpawnProjectile();
+
+	PlaySound(FireSound);
 
 	// Call timer to start firing again
 	if (GetWorldTimerManager().IsTimerActive(FireTimer))
@@ -101,6 +101,14 @@ void AEnemy::Start()
 {
 	this->SetActorTickEnabled(true);
 	GetWorldTimerManager().SetTimer(FireTimer, this, &AEnemy::CanFire, BetweenFiring);
+}
+
+void AEnemy::PlaySound(USoundBase* SoundToPlay)
+{
+	if (SoundToPlay)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, SoundToPlay, GetActorLocation());
+	}
 }
 
 void AEnemy::Tick(float DeltaTime)
