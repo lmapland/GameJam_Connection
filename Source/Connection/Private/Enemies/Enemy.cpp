@@ -46,8 +46,6 @@ void AEnemy::CanFire()
 	{
 		bInterpToCharacter = true;
 
-		//UE_LOG(LogTemp, Warning, TEXT("AEnemy::CanFire(): Firing"));
-
 		// execute Montage
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 		if (AnimInstance && FireMontage)
@@ -100,7 +98,7 @@ void AEnemy::Fire()
 void AEnemy::Start()
 {
 	this->SetActorTickEnabled(true);
-	GetWorldTimerManager().SetTimer(FireTimer, this, &AEnemy::CanFire, BetweenFiring);
+	GetWorldTimerManager().SetTimer(FireTimer, this, &AEnemy::CanFire, BeginPlayFiring);
 }
 
 void AEnemy::PlaySound(USoundBase* SoundToPlay)

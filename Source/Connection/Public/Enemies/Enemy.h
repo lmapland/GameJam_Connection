@@ -65,8 +65,12 @@ private:
 	float UntilDisappear = 4.f;
 
 	FTimerHandle FireTimer;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Enemy|Combat")
 	float BetweenFiring = 2.f;
-	float BetweenFiringLong = 3.5f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Enemy|Combat")
+	float BeginPlayFiring = 0.5f;
 
 	float InterpSpeed = 10.f;
 	bool bInterpToCharacter = false;
