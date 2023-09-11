@@ -9,6 +9,7 @@
 class UOverlay;
 class UTextBlock;
 class UOverlayWidgetController;
+class UWidgetAnimation;
 
 /**
  *
@@ -41,6 +42,9 @@ public:
 
 	UFUNCTION()
 	void DisplayInteractionText(bool bIsVisible);
+
+	UFUNCTION()
+	void DisplayDodgesText(int32 Dodges);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayerHurt();
@@ -79,8 +83,19 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UTextBlock* InteractionText;
+	
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UTextBlock* DodgesText;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UTextBlock* DodgesAnimText;
+	
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+	UWidgetAnimation* NewDodgeAnimation;
 
 	int32 CurrentLives = 0;
+
+	int32 CurrentDodges = -1;
 
 	UPROPERTY(BlueprintReadOnly)
 	bool GameOver = false;
@@ -93,6 +108,7 @@ private:
 	void HideSection2Text();
 	void HideSection3Text();
 	void HideSection4Text();
+	void DisplayTutorialPart2Text();
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	UOverlayWidgetController* WidgetController;

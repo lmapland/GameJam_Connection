@@ -36,6 +36,7 @@ void UOverlayWidget::NativeConstruct()
 	Section3->SetVisibility(ESlateVisibility::Hidden);
 	Section4->SetVisibility(ESlateVisibility::Hidden);
 	InteractionText->SetVisibility(ESlateVisibility::Hidden);
+	DodgesAnimText->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UOverlayWidget::SetController(UOverlayWidgetController* InWidgetController)
@@ -51,6 +52,8 @@ void UOverlayWidget::SetController(UOverlayWidgetController* InWidgetController)
 	WidgetController->OnShowLevelCompleteText.AddDynamic(this, &UOverlayWidget::DisplayLevelCompleteText);
 	WidgetController->OnShowConnectionMadeText.AddDynamic(this, &UOverlayWidget::DisplayConnectionText);
 	WidgetController->OnShowInteractionText.AddDynamic(this, &UOverlayWidget::DisplayInteractionText);
+	WidgetController->OnInitializeDodges.AddDynamic(this, &UOverlayWidget::DisplayDodgesText);
+	WidgetController->OnUpdateDodgesText.AddDynamic(this, &UOverlayWidget::DisplayDodgesText);
 }
 
 void UOverlayWidget::DisplayConnectionText()
@@ -87,6 +90,15 @@ void UOverlayWidget::DisplayTutorialText()
 	if (Section2)
 	{
 		Section2->SetVisibility(ESlateVisibility::Visible);
+		GetWorld()->GetTimerManager().SetTimer(Section2Handle, this, &UOverlayWidget::DisplayTutorialPart2Text, TutorialTime);
+	}
+}
+
+void UOverlayWidget::DisplayTutorialPart2Text()
+{
+	if (Section2)
+	{
+		Section2Text->SetText(FText::FromString("Press 'q' to dodge"));
 		GetWorld()->GetTimerManager().SetTimer(Section2Handle, this, &UOverlayWidget::HideSection2Text, TutorialTime);
 	}
 }
@@ -131,6 +143,30 @@ void UOverlayWidget::DisplayInteractionText(bool bIsVisible)
 		if (bIsVisible)	InteractionText->SetVisibility(ESlateVisibility::Visible);
 		else InteractionText->SetVisibility(ESlateVisibility::Hidden);
 	}
+}
+
+void UOverlayWidget::DisplayDodgesText(int32 Dodges)
+{
+	// Play "you gained dodges" animation
+	if (CurrentDodges != -1)
+	{
+		int32 GainedDodges = Dodges - CurrentDodges;
+		if (GainedDodges > 0)
+		{
+			FString NewDodgesText = FString::Printf(TEXT("+%i"), GainedDodges);
+			DodgesAnimText->SetText(FText::FromString(NewDodgesText));
+			// play anim
+			PlayAnimation(NewDodgeAnimation);
+		}
+	}
+
+	if (DodgesText)
+	{
+		FString DodgesString = FString::Printf(TEXT("Dodges: %i"), Dodges);
+		DodgesText->SetText(FText::FromString(DodgesString));
+	}
+
+	CurrentDodges = Dodges;
 }
 
 void UOverlayWidget::HideSection1Text()

@@ -9,6 +9,8 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnShowTutorialSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInitializeLivesSignature, int32, Lives);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateLivesSignature, int32, Lives);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInitializeDodgesSignature, int32, Dodges);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateDodgesSignature, int32, Dodges);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnShowCharacterDeathTextSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnShowPlayerWinTextSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnShowCharacterTransportTextSignature);
@@ -58,6 +60,12 @@ public:
 	UPROPERTY()
 	FOnShowInteractionText OnShowInteractionText;
 
+	UPROPERTY()
+	FOnInitializeDodgesSignature OnInitializeDodges;
+	
+	UPROPERTY()
+	FOnUpdateDodgesSignature OnUpdateDodgesText;
+
 private:
 	UFUNCTION()
 	void DisplayTutorialText();
@@ -82,6 +90,9 @@ private:
 
 	UFUNCTION()
 	void DisplayInterationText(bool bOverlapping);
+
+	UFUNCTION()
+	void DisplayDodgesText(int32 Amount);
 
 	UPROPERTY()
 	ULevelManager* LevelManager;

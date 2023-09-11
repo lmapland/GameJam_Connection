@@ -8,12 +8,17 @@
 #include "XtionsCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLivesUpdatedSignature, int32, Amount);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDodgesUpdatedSignature, int32, Total);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterDeathSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnOverlappingBox, bool, bIsOverlapping);
 
+class UInputComponent;
 class AConnectionBox;
 class UOverlayWidget;
 class USoundBase;
+class UAnimMontage;
+class UInputMappingContext;
+class UInputAction;
 
 UCLASS()
 class CONNECTION_API AXtionsCharacter : public ACharacter
@@ -23,7 +28,7 @@ class CONNECTION_API AXtionsCharacter : public ACharacter
 public:
 	AXtionsCharacter();
 	virtual void Tick(float DeltaTime) override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	void Damage(int32 Amount);
 	void TransportCharacter(FVector Location, FRotator Rotation);
 	void SetOverlappedConnectionBox(AConnectionBox* InOverlappedBox);
@@ -35,6 +40,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Attributes")
 	int32 MaxHealth = 4;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Attributes")
+	int32 NumDodges = 2;
+
 	UPROPERTY()
 	FOnLivesUpdatedSignature OnLivesUpdated;
 
@@ -43,6 +51,9 @@ public:
 
 	UPROPERTY()
 	FOnOverlappingBox OnOverlappingBox;
+
+	UPROPERTY()
+	FOnDodgesUpdatedSignature OnDodgesUpdated;
 	
 	UPROPERTY(EditAnywhere, Category = "Character|Attributes")
 	USoundBase* OnDamageSound;
@@ -51,21 +62,32 @@ protected:
 	virtual void BeginPlay() override;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Input")
-	class UInputMappingContext* CharMappingContext;
+	UInputMappingContext* CharMappingContext;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Input")
-	class UInputAction* MoveAction;
+	UInputAction* MoveAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Input")
-	class UInputAction* LookAction;
+	UInputAction* LookAction;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Input")
-	class UInputAction* InteractAction;
+	UInputAction* InteractAction;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Input")
+	UInputAction* DodgeAction;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Character|Montages")
+	UAnimMontage* DodgeMontage;
 
 private:
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void Interact(const FInputActionValue& value);
+	void Dodge(const FInputActionValue& value);
+
+	UFUNCTION(BlueprintCallable)
+	void DodgeFinish();
+
 	void Die();
 	void PostDie();
 	void PlaySound(USoundBase* SoundToPlay);
@@ -82,7 +104,10 @@ private:
 	FTimerHandle DeathTimer;
 	float DeathTimout = 5.f;
 
+	bool bIsDodging = false;
+
 public:
 	FORCEINLINE bool IsAlive() const { return bAlive; }
 	FORCEINLINE int32 GetStartLives() const { return Health; }
+	FORCEINLINE int32 GetStartDodges() const { return NumDodges; }
 };

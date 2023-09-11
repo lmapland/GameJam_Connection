@@ -68,10 +68,30 @@ void AXtionsCharacter::Look(const FInputActionValue& Value)
 
 void AXtionsCharacter::Interact(const FInputActionValue& value)
 {
-	if (!bAlive || !OverlappedBox) return;
+	if (!bAlive || !OverlappedBox || bIsDodging) return;
 
 	OnOverlappingBox.Broadcast(false);
 	OverlappedBox->Use();
+}
+
+void AXtionsCharacter::Dodge(const FInputActionValue& value)
+{
+	if (bIsDodging || NumDodges == 0) return;
+
+	bIsDodging = true;
+	NumDodges -= 1;
+	OnDodgesUpdated.Broadcast(NumDodges);
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && DodgeMontage)
+	{
+		AnimInstance->Montage_Play(DodgeMontage, 2.f);
+	}
+}
+
+void AXtionsCharacter::DodgeFinish()
+{
+	bIsDodging = false;
 }
 
 void AXtionsCharacter::Tick(float DeltaTime)
@@ -89,12 +109,13 @@ void AXtionsCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AXtionsCharacter::Move);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AXtionsCharacter::Look);
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AXtionsCharacter::Interact);
+		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this, &AXtionsCharacter::Dodge);
 	}
 }
 
 void AXtionsCharacter::Damage(int32 Amount)
 {
-	if (!bAlive) return;
+	if (!bAlive || bIsDodging) return;
 
 	PlaySound(OnDamageSound);
 
@@ -127,11 +148,16 @@ void AXtionsCharacter::PostDie()
 	UGameplayStatics::OpenLevel(GetWorld(), "MainMenu");
 }
 
+// Aka level complete / set up new level
 void AXtionsCharacter::TransportCharacter(FVector Location, FRotator Rotation)
 {
 	SetActorLocation(Location);
 	PlayerController->SetControlRotation(Rotation);
 	SetActorRotation(Rotation);
+
+	// Add another dodge
+	NumDodges += 1;
+	OnDodgesUpdated.Broadcast(NumDodges);
 }
 
 void AXtionsCharacter::SetOverlappedConnectionBox(AConnectionBox* InOverlappedBox)
