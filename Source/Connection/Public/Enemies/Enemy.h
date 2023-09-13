@@ -26,6 +26,9 @@ public:
 	void Die();
 
 	UFUNCTION(BlueprintCallable)
+	void SimpleFire();
+
+	UFUNCTION(BlueprintCallable)
 	void Fire();
 
 	virtual void Start() override;
@@ -35,13 +38,13 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Enemy|Combat")
 	AXtionsCharacter* MyEnemy;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Combat")
 	UAnimMontage* FireMontage;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy|Combat")
 	UNiagaraSystem* ForeverParticles;
-	
+
 	UPROPERTY(EditAnywhere, Category = "Enemy|Attributes")
 	USoundBase* FireSound;
 
@@ -57,8 +60,7 @@ protected:
 private:
 	void PostDie();
 	void CanFire();
-	AProjectile* SpawnProjectile();
-	void SetInterpToCharacter(bool Interp);
+	AProjectile* SpawnProjectile(FVector LocationToSpawn = FVector(0.f));
 	void PlaySound(USoundBase* SoundToPlay);
 
 	FTimerHandle DeathTimer;
@@ -66,11 +68,25 @@ private:
 
 	FTimerHandle FireTimer;
 
+	/* Amount of time to wait between firing projectiles */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Enemy|Combat")
 	float BetweenFiring = 2.f;
 
+	/* Amount of time to wait between when the character comes into play and the enemy begins firing */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Enemy|Combat")
 	float BeginPlayFiring = 0.5f;
+
+	/* Should the enemy fire two projectiles at the same time? */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Enemy|Combat")
+	bool bFireTwoAtATime = false;
+
+	/* Where should the second projectile be fired from? This var is not used unless bFireTwoAtATime is true */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Enemy|Combat")
+	FVector SecondProjectileOffset = FVector(0.f);
+
+	/* Should the enemy fire two projectiles quickly in sequence? This causes a different animation to be played */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Enemy|Combat")
+	bool bFireTwoSequentially = false;
 
 	float InterpSpeed = 10.f;
 	bool bInterpToCharacter = false;

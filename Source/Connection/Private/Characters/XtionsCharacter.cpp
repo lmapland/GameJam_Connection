@@ -89,6 +89,11 @@ void AXtionsCharacter::Dodge(const FInputActionValue& value)
 	}
 }
 
+void AXtionsCharacter::LeaveGame(const FInputActionValue& value)
+{
+	UGameplayStatics::OpenLevel(this, FName("MainMenu"));
+}
+
 void AXtionsCharacter::DodgeFinish()
 {
 	bIsDodging = false;
@@ -110,6 +115,7 @@ void AXtionsCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AXtionsCharacter::Look);
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AXtionsCharacter::Interact);
 		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this, &AXtionsCharacter::Dodge);
+		EnhancedInputComponent->BindAction(LeaveAction, ETriggerEvent::Completed, this, &AXtionsCharacter::LeaveGame);
 	}
 }
 

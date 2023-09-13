@@ -51,7 +51,14 @@ void AEnemy::CanFire()
 		if (AnimInstance && FireMontage)
 		{
 			AnimInstance->Montage_Play(FireMontage);
-			AnimInstance->Montage_JumpToSection(FName("Default"));
+			if (bFireTwoSequentially)
+			{
+				AnimInstance->Montage_JumpToSection(FName("DoubleFire"));
+			}
+			else
+			{
+				AnimInstance->Montage_JumpToSection(FName("Default"));
+			}
 		}
 	}
 	else
@@ -61,15 +68,24 @@ void AEnemy::CanFire()
 	}
 }
 
-AProjectile* AEnemy::SpawnProjectile()
+AProjectile* AEnemy::SpawnProjectile(FVector LocationToSpawn)
 {
-	FVector LocationToSpawn = GetActorLocation() + FVector(0.f, 0.f, 40.f) + (GetActorForwardVector() * 90);
-	return GetWorld()->SpawnActor<AProjectile>(ProjectileClass, LocationToSpawn, GetActorRotation());
+	FVector SpawnLocation = GetActorLocation() + LocationToSpawn + FVector(0.f, 0.f, 40.f) + (GetActorForwardVector() * 90);
+	return GetWorld()->SpawnActor<AProjectile>(ProjectileClass, SpawnLocation, GetActorRotation());
 }
 
-void AEnemy::SetInterpToCharacter(bool Interp)
+void AEnemy::SimpleFire()
 {
-	bInterpToCharacter = Interp;
+	if (!bAlive || !MyEnemy->IsAlive()) return;
+
+	AProjectile* Projectile = SpawnProjectile();
+
+	if (bFireTwoAtATime)
+	{
+		SpawnProjectile(SecondProjectileOffset);
+	}
+
+	PlaySound(FireSound);
 }
 
 void AEnemy::Fire()
@@ -79,6 +95,11 @@ void AEnemy::Fire()
 	bInterpToCharacter = false;
 
 	AProjectile* Projectile = SpawnProjectile();
+
+	if (bFireTwoAtATime)
+	{
+		SpawnProjectile(SecondProjectileOffset);
+	}
 
 	PlaySound(FireSound);
 

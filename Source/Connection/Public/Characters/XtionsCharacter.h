@@ -76,6 +76,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Input")
 	UInputAction* DodgeAction;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Input")
+	UInputAction* LeaveAction;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Character|Montages")
 	UAnimMontage* DodgeMontage;
 
@@ -84,6 +87,7 @@ private:
 	void Look(const FInputActionValue& Value);
 	void Interact(const FInputActionValue& value);
 	void Dodge(const FInputActionValue& value);
+	void LeaveGame(const FInputActionValue& value);
 
 	UFUNCTION(BlueprintCallable)
 	void DodgeFinish();
