@@ -98,7 +98,7 @@ void UOverlayWidget::DisplayTutorialPart2Text()
 {
 	if (Section2)
 	{
-		Section2Text->SetText(FText::FromString("Press 'q' to dodge"));
+		Section2Text->SetText(FText::FromString("Press 'r' to dodge"));
 		GetWorld()->GetTimerManager().SetTimer(Section2Handle, this, &UOverlayWidget::HideSection2Text, TutorialTime);
 	}
 }
