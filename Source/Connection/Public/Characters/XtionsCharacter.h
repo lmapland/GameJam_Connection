@@ -11,6 +11,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLivesUpdatedSignature, int32, Amo
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDodgesUpdatedSignature, int32, Total);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterDeathSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnOverlappingBox, bool, bIsOverlapping);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLevelSkipRequested);
 
 class UInputComponent;
 class AConnectionBox;
@@ -50,6 +51,9 @@ public:
 	FOnCharacterDeathSignature OnCharacterDeath;
 
 	UPROPERTY()
+	FOnLevelSkipRequested OnLevelSkipRequested;
+
+	UPROPERTY()
 	FOnOverlappingBox OnOverlappingBox;
 
 	UPROPERTY()
@@ -79,6 +83,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Input")
 	UInputAction* LeaveAction;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Input")
+	UInputAction* LevelSkipAction;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Character|Montages")
 	UAnimMontage* DodgeMontage;
 
@@ -88,6 +95,7 @@ private:
 	void Interact(const FInputActionValue& value);
 	void Dodge(const FInputActionValue& value);
 	void LeaveGame(const FInputActionValue& value);
+	void SkipCurrentLevel();
 
 	UFUNCTION(BlueprintCallable)
 	void DodgeFinish();

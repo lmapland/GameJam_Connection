@@ -42,10 +42,14 @@ void AEnemy::CanFire()
 {
 	if (!bAlive || !MyEnemy->IsAlive()) return;
 
+	if (!CanSeeMyEnemy())
+	{
+		GetWorldTimerManager().SetTimer(FireTimer, this, &AEnemy::CanFire, BetweenFiring);
+		return;
+	}
+
 	if (GetDistanceTo(MyEnemy) <= MaxFireDistance)
 	{
-		bInterpToCharacter = true;
-
 		// execute Montage
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 		if (AnimInstance && FireMontage)
@@ -70,8 +74,10 @@ void AEnemy::CanFire()
 
 AProjectile* AEnemy::SpawnProjectile(FVector LocationToSpawn)
 {
-	FVector SpawnLocation = GetActorLocation() + LocationToSpawn + FVector(0.f, 0.f, 40.f) + (GetActorForwardVector() * 90);
-	return GetWorld()->SpawnActor<AProjectile>(ProjectileClass, SpawnLocation, GetActorRotation());
+	const FVector SpawnLocation = GetActorLocation() + LocationToSpawn + FVector(0.f, 0.f, 40.f);
+	const FVector ToEnemyNormalized = ((MyEnemy->GetActorLocation() + FVector(0.f,0.f,50.f)) - SpawnLocation).GetSafeNormal();
+	const FRotator StartRotation = ToEnemyNormalized.ToOrientationRotator();
+	return GetWorld()->SpawnActor<AProjectile>(ProjectileClass, SpawnLocation, StartRotation);
 }
 
 void AEnemy::SimpleFire()
@@ -92,8 +98,6 @@ void AEnemy::Fire()
 {
 	if (!bAlive || !MyEnemy->IsAlive()) return;
 
-	bInterpToCharacter = false;
-
 	AProjectile* Projectile = SpawnProjectile();
 
 	if (bFireTwoAtATime)
@@ -106,13 +110,11 @@ void AEnemy::Fire()
 	// Call timer to start firing again
 	if (GetWorldTimerManager().IsTimerActive(FireTimer))
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("AEnemy::Fire(): FireTimer is currently active. Clearing"));
 		GetWorldTimerManager().ClearTimer(FireTimer);
 	}
 	else
 	{
 		GetWorldTimerManager().SetTimer(FireTimer, this, &AEnemy::CanFire, BetweenFiring);
-		//UE_LOG(LogTemp, Warning, TEXT("AEnemy::Fire(): FireTimer set"));
 	}
 }
 
@@ -120,6 +122,28 @@ void AEnemy::Start()
 {
 	this->SetActorTickEnabled(true);
 	GetWorldTimerManager().SetTimer(FireTimer, this, &AEnemy::CanFire, BeginPlayFiring);
+}
+
+bool AEnemy::CanSeeMyEnemy()
+{
+	FHitResult HitResult;
+
+	// how to get the camera location & rotation in world space
+	const FVector SpawnLocation = GetActorLocation();
+	const FVector ToEnemyNormalized = ((MyEnemy->GetActorLocation() + FVector(0.f, 0.f, 50.f)) - SpawnLocation).GetSafeNormal();
+	const FVector EndLocation = SpawnLocation + ToEnemyNormalized * MaxFireDistance;
+
+	GetWorld()->LineTraceSingleByChannel(HitResult, SpawnLocation, EndLocation, ECollisionChannel::ECC_Visibility);
+	//DrawDebugLine(GetWorld(), SpawnLocation, EndLocation, FColor::Black, true, 60.f, 0, 1.f);
+
+	if (HitResult.bBlockingHit)
+	{
+		if (MyEnemy == Cast<AXtionsCharacter>(HitResult.GetActor()))
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 void AEnemy::PlaySound(USoundBase* SoundToPlay)

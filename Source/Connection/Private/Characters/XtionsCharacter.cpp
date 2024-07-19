@@ -46,6 +46,13 @@ void AXtionsCharacter::Move(const FInputActionValue& Value)
 	if (!bAlive) return;
 
 	const FVector2D MovementVector = Value.Get<FVector2D>();
+
+	// Handle possible controller drift
+	if ((MovementVector.X < 0.1f && MovementVector.X > -0.1f) && (MovementVector.Y < 0.1f && MovementVector.Y > -0.1f))
+	{
+		return;
+	}
+
 	const FRotator Rotation = Controller->GetControlRotation();
 	const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
 
@@ -61,6 +68,14 @@ void AXtionsCharacter::Look(const FInputActionValue& Value)
 	if (!bAlive) return;
 
 	const FVector2D LookAxisValue = Value.Get<FVector2D>();
+
+	// Handle possible controller drift
+	//UE_LOG(LogTemp, Warning, TEXT("Look X,Y: %f,%f"), LookAxisValue.X, LookAxisValue.Y);
+	if ((LookAxisValue.X < 0.1f && LookAxisValue.X > -0.1f) && (LookAxisValue.Y < 0.1f && LookAxisValue.Y > -0.1f))
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("Found controller drift (look)"));
+		return;
+	}
 
 	AddControllerYawInput(LookAxisValue.X);
 	AddControllerPitchInput(LookAxisValue.Y);
@@ -94,6 +109,11 @@ void AXtionsCharacter::LeaveGame(const FInputActionValue& value)
 	UGameplayStatics::OpenLevel(this, FName("MainMenu"));
 }
 
+void AXtionsCharacter::SkipCurrentLevel()
+{
+	OnLevelSkipRequested.Broadcast();
+}
+
 void AXtionsCharacter::DodgeFinish()
 {
 	bIsDodging = false;
@@ -116,6 +136,7 @@ void AXtionsCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AXtionsCharacter::Interact);
 		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this, &AXtionsCharacter::Dodge);
 		EnhancedInputComponent->BindAction(LeaveAction, ETriggerEvent::Completed, this, &AXtionsCharacter::LeaveGame);
+		EnhancedInputComponent->BindAction(LevelSkipAction, ETriggerEvent::Completed, this, &AXtionsCharacter::SkipCurrentLevel);
 	}
 }
 
@@ -157,6 +178,7 @@ void AXtionsCharacter::PostDie()
 // Aka level complete / set up new level
 void AXtionsCharacter::TransportCharacter(FVector Location, FRotator Rotation)
 {
+	//SetActorTransform(FTransform(Location, Rotation, FVector(1.f)));
 	SetActorLocation(Location);
 	PlayerController->SetControlRotation(Rotation);
 	SetActorRotation(Rotation);

@@ -62,6 +62,7 @@ private:
 	void CanFire();
 	AProjectile* SpawnProjectile(FVector LocationToSpawn = FVector(0.f));
 	void PlaySound(USoundBase* SoundToPlay);
+	bool CanSeeMyEnemy();
 
 	FTimerHandle DeathTimer;
 	float UntilDisappear = 4.f;
@@ -89,7 +90,7 @@ private:
 	bool bFireTwoSequentially = false;
 
 	float InterpSpeed = 10.f;
-	bool bInterpToCharacter = false;
+	bool bInterpToCharacter = true;
 
 	bool bAlive = true;
 

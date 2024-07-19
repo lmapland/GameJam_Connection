@@ -16,14 +16,15 @@ ULevelManager::ULevelManager()
 	StartingRotations.Add(FRotator(0.f));
 
 	// Index 1 - Level 2
-	Levels.Add(1);
-	StartingLocations.Add(FVector(19694.f, -451.f, 5946.f));
+	Levels.Add(2);
+	StartingLocations.Add(FVector(14600.f, -3160.f, 5598.f));
+	//StartingLocations.Add(FVector(19694.f, -451.f, 5946.f));
 	StartingRotations.Add(FRotator(0.f, 90.f, 0.f));
 
 	// Index 2 - Level 3
 	Levels.Add(2);
-	StartingLocations.Add(FVector(17850.f, 2532.f, 5946.f));
-	StartingRotations.Add(FRotator(0.f, -90.f, 0.f));
+	StartingLocations.Add(FVector(12320.f, -7170.f, 5946.f));
+	StartingRotations.Add(FRotator(0.f, 0.f, 0.f));
 
 	// Index 3 - Level 4
 	Levels.Add(2);
@@ -57,23 +58,39 @@ void ULevelManager::Setup()
 	}
 
 	// Bind to Connection Boxes for all levels
-	TArray<AActor*> AllConnectionBoxes;
+	TArray<AActor*> AllConnectionBoxActors;
 
-	UGameplayStatics::GetAllActorsOfClass(this, AConnectionBox::StaticClass(), AllConnectionBoxes);
+	UGameplayStatics::GetAllActorsOfClass(this, AConnectionBox::StaticClass(), AllConnectionBoxActors);
 
-	for (auto CurrentActor : AllConnectionBoxes)
+	for (auto CurrentActor : AllConnectionBoxActors)
 	{
 		if (AConnectionBox* CBox = Cast<AConnectionBox>(CurrentActor))
 		{
 			CBox->OnConnectDelegate.AddUniqueDynamic(this, &ULevelManager::ConnectionComplete);
+			AllConnectionBoxes.Add(CBox);
 		}
 	}
 
 	// Set player character
 	AActor* ActorOwner = UGameplayStatics::GetActorOfClass(this, AXtionsCharacter::StaticClass());
 	if (ActorOwner) Player = Cast<AXtionsCharacter>(ActorOwner);
+	Player->OnLevelSkipRequested.AddUniqueDynamic(this, &ULevelManager::SkipCurrentLevel);
 
 	OnLaunchTutorial.Broadcast();
+}
+
+void ULevelManager::SkipCurrentLevel()
+{
+	//UE_LOG(LogTemp, Warning, TEXT("SkipCurrentLevel(): Skipping Level %i"), CurrentLevel);
+	int32 LevelToSkip = CurrentLevel;
+	// To "skip" the current level, we connect all of the boxes associated with this level.
+	for (AConnectionBox *CBox : AllConnectionBoxes)
+	{
+		if (CBox->Level == LevelToSkip)
+		{
+			CBox->Use();
+		}
+	}
 }
 
 /*
@@ -83,7 +100,8 @@ void ULevelManager::Setup()
 */
 void ULevelManager::CharacterInPlay(int32 InLevel)
 {
-	if (bCurrentLevelStarted) return;
+	//UE_LOG(LogTemp, Warning, TEXT("CharacterInPlay(): CurrentLevel: %i, InLevel: %i"), CurrentLevel, InLevel);
+	if (bCurrentLevelStarted || InLevel != CurrentLevel) return;
 	bCurrentLevelStarted = true;
 
 	TArray<AActor*> AllActors;
@@ -136,4 +154,5 @@ void ULevelManager::EndTheGame()
 void ULevelManager::TransportPlayer()
 {
 	Player->TransportCharacter(StartingLocations[CurrentLevel - 1], StartingRotations[CurrentLevel - 1]);
+	bCurrentLevelStarted = false;
 }

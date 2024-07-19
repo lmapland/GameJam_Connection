@@ -41,6 +41,8 @@ void AProjectile::BeginPlay()
 void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
 {
 	if (AEnemy* Enemy = Cast<AEnemy>(OtherActor)) return;
+	if (AProjectile* Projectile = Cast<AProjectile>(OtherActor)) return;
+
 	if (OtherActor == this) return;
 
 	if (AXtionsCharacter* Char = Cast<AXtionsCharacter>(OtherActor))

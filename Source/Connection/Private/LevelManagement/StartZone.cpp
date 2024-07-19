@@ -8,6 +8,7 @@ AStartZone::AStartZone()
 	PrimaryActorTick.bCanEverTick = true;
 
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>("BoxCollider");
+	BoxCollider->InitBoxExtent(FVector(200.f, 200.f, 200.f));
 	SetRootComponent(BoxCollider);
 }
 

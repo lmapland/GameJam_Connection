@@ -14,6 +14,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnConnectionMadeSignature);
 
 class AStartZone;
 class AXtionsCharacter;
+class AConnectionBox;
 
 /**
  * To use this level manager:
@@ -40,6 +41,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void Setup();
+
+	UFUNCTION()
+	void SkipCurrentLevel();
 
 	UPROPERTY()
 	FOnLaunchTutorialSignature OnLaunchTutorial;
@@ -73,6 +77,8 @@ private:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes", meta = (AllowPrivateAccess = "true"))
 	TArray<FRotator> StartingRotations;
+
+	TArray<AConnectionBox*> AllConnectionBoxes;
 
 	int32 Progress = 0; // if the current level has 2 ConnectionBoxes, then this can either be 0 or 1
 
