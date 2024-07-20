@@ -57,12 +57,12 @@ void UOverlayWidgetController::DisplayTransportText()
 
 void UOverlayWidgetController::DisplayConnectionText()
 {
-	OnShowLevelCompleteText.Broadcast();
+	OnShowConnectionMadeText.Broadcast();
 }
 
 void UOverlayWidgetController::DisplayLevelCompleteText()
 {
-	OnShowConnectionMadeText.Broadcast();
+	OnShowLevelCompleteText.Broadcast();
 }
 
 void UOverlayWidgetController::DisplayInterationText(bool bOverlapping)

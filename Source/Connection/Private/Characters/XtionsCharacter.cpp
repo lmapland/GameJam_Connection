@@ -47,12 +47,6 @@ void AXtionsCharacter::Move(const FInputActionValue& Value)
 
 	const FVector2D MovementVector = Value.Get<FVector2D>();
 
-	// Handle possible controller drift
-	if ((MovementVector.X < 0.1f && MovementVector.X > -0.1f) && (MovementVector.Y < 0.1f && MovementVector.Y > -0.1f))
-	{
-		return;
-	}
-
 	const FRotator Rotation = Controller->GetControlRotation();
 	const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
 
@@ -69,13 +63,7 @@ void AXtionsCharacter::Look(const FInputActionValue& Value)
 
 	const FVector2D LookAxisValue = Value.Get<FVector2D>();
 
-	// Handle possible controller drift
 	//UE_LOG(LogTemp, Warning, TEXT("Look X,Y: %f,%f"), LookAxisValue.X, LookAxisValue.Y);
-	if ((LookAxisValue.X < 0.1f && LookAxisValue.X > -0.1f) && (LookAxisValue.Y < 0.1f && LookAxisValue.Y > -0.1f))
-	{
-		//UE_LOG(LogTemp, Warning, TEXT("Found controller drift (look)"));
-		return;
-	}
 
 	AddControllerYawInput(LookAxisValue.X);
 	AddControllerPitchInput(LookAxisValue.Y);
