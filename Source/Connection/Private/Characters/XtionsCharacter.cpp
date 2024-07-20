@@ -92,6 +92,24 @@ void AXtionsCharacter::Dodge(const FInputActionValue& value)
 	}
 }
 
+void AXtionsCharacter::Jump()
+{
+	if (bIsJumping || NumJumps == 0) return;
+
+	bIsJumping = true;
+	NumJumps -= 1;
+	OnJumpsUpdated.Broadcast(NumJumps);
+
+	Super::Jump();
+}
+
+void AXtionsCharacter::Landed(const FHitResult& Hit)
+{
+	Super::Landed(Hit);
+
+	bIsJumping = false;
+}
+
 void AXtionsCharacter::LeaveGame(const FInputActionValue& value)
 {
 	UGameplayStatics::OpenLevel(this, FName("MainMenu"));
@@ -123,6 +141,7 @@ void AXtionsCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AXtionsCharacter::Look);
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AXtionsCharacter::Interact);
 		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this, &AXtionsCharacter::Dodge);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AXtionsCharacter::Jump);
 		EnhancedInputComponent->BindAction(LeaveAction, ETriggerEvent::Completed, this, &AXtionsCharacter::LeaveGame);
 		EnhancedInputComponent->BindAction(LevelSkipAction, ETriggerEvent::Completed, this, &AXtionsCharacter::SkipCurrentLevel);
 	}
@@ -174,6 +193,14 @@ void AXtionsCharacter::TransportCharacter(FVector Location, FRotator Rotation)
 	// Add another dodge
 	NumDodges += 1;
 	OnDodgesUpdated.Broadcast(NumDodges);
+
+	NumJumps += 1;
+	OnJumpsUpdated.Broadcast(NumJumps);
+
+	if (Health == MaxHealth) return;
+
+	Health = FMath::Clamp(Health + 1, 0, MaxHealth);
+	OnLivesUpdated.Broadcast(1);
 }
 
 void AXtionsCharacter::SetOverlappedConnectionBox(AConnectionBox* InOverlappedBox)

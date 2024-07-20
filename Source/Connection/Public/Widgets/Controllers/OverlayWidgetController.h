@@ -11,6 +11,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInitializeLivesSignature, int32, 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateLivesSignature, int32, Lives);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInitializeDodgesSignature, int32, Dodges);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateDodgesSignature, int32, Dodges);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateJumpsSignature, int32, Jumps);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnShowCharacterDeathTextSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnShowPlayerWinTextSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnShowCharacterTransportTextSignature);
@@ -66,6 +67,9 @@ public:
 	UPROPERTY()
 	FOnUpdateDodgesSignature OnUpdateDodgesText;
 
+	UPROPERTY()
+	FOnUpdateJumpsSignature OnUpdateJumpsText;
+
 private:
 	UFUNCTION()
 	void DisplayTutorialText();
@@ -93,6 +97,9 @@ private:
 
 	UFUNCTION()
 	void DisplayDodgesText(int32 Amount);
+
+	UFUNCTION()
+	void DisplayJumpsText(int32 Amount);
 
 	UPROPERTY()
 	ULevelManager* LevelManager;

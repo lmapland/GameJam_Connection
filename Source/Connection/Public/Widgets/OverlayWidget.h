@@ -46,6 +46,9 @@ public:
 	UFUNCTION()
 	void DisplayDodgesText(int32 Dodges);
 
+	UFUNCTION()
+	void DisplayJumpsText(int32 Jumps);
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayerHurt();
 	
@@ -89,13 +92,24 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UTextBlock* DodgesAnimText;
-	
+
 	UPROPERTY(meta = (BindWidgetAnim), Transient)
 	UWidgetAnimation* NewDodgeAnimation;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UTextBlock* JumpsText;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UTextBlock* JumpsAnimText;
+
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+	UWidgetAnimation* NewJumpAnimation;
 
 	int32 CurrentLives = 0;
 
 	int32 CurrentDodges = -1;
+
+	int32 CurrentJumps = -1;
 
 	UPROPERTY(BlueprintReadOnly)
 	bool GameOver = false;

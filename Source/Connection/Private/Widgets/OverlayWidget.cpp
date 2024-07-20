@@ -37,6 +37,7 @@ void UOverlayWidget::NativeConstruct()
 	Section4->SetVisibility(ESlateVisibility::Hidden);
 	InteractionText->SetVisibility(ESlateVisibility::Hidden);
 	DodgesAnimText->SetVisibility(ESlateVisibility::Hidden);
+	JumpsAnimText->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UOverlayWidget::SetController(UOverlayWidgetController* InWidgetController)
@@ -54,6 +55,7 @@ void UOverlayWidget::SetController(UOverlayWidgetController* InWidgetController)
 	WidgetController->OnShowInteractionText.AddDynamic(this, &UOverlayWidget::DisplayInteractionText);
 	WidgetController->OnInitializeDodges.AddDynamic(this, &UOverlayWidget::DisplayDodgesText);
 	WidgetController->OnUpdateDodgesText.AddDynamic(this, &UOverlayWidget::DisplayDodgesText);
+	WidgetController->OnUpdateJumpsText.AddDynamic(this, &UOverlayWidget::DisplayJumpsText);
 }
 
 void UOverlayWidget::DisplayConnectionText()
@@ -98,7 +100,7 @@ void UOverlayWidget::DisplayTutorialPart2Text()
 {
 	if (Section2)
 	{
-		Section2Text->SetText(FText::FromString("Press 'r' to dodge"));
+		Section2Text->SetText(FText::FromString("[R] or (X) to Dodge"));
 		GetWorld()->GetTimerManager().SetTimer(Section2Handle, this, &UOverlayWidget::HideSection2Text, TutorialTime);
 	}
 }
@@ -167,6 +169,28 @@ void UOverlayWidget::DisplayDodgesText(int32 Dodges)
 	}
 
 	CurrentDodges = Dodges;
+}
+
+void UOverlayWidget::DisplayJumpsText(int32 Jumps)
+{
+	if (CurrentJumps != -1)
+	{
+		int32 GainedJumps = Jumps - CurrentJumps;
+		if (GainedJumps > 0)
+		{
+			FString NewJumpsText = FString::Printf(TEXT("+%i"), GainedJumps);
+			JumpsAnimText->SetText(FText::FromString(NewJumpsText));
+			PlayAnimation(NewJumpAnimation);
+		}
+	}
+
+	if (JumpsText)
+	{
+		FString JumpsString = FString::Printf(TEXT("Jumps: %i"), Jumps);
+		JumpsText->SetText(FText::FromString(JumpsString));
+	}
+
+	CurrentJumps = Jumps;
 }
 
 void UOverlayWidget::HideSection1Text()

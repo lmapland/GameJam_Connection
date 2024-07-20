@@ -22,6 +22,7 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 	Character->OnCharacterDeath.AddDynamic(this, &UOverlayWidgetController::DisplayDeathText);
 	Character->OnOverlappingBox.AddDynamic(this, &UOverlayWidgetController::DisplayInterationText);
 	Character->OnDodgesUpdated.AddDynamic(this, &UOverlayWidgetController::DisplayDodgesText);
+	Character->OnJumpsUpdated.AddDynamic(this, &UOverlayWidgetController::DisplayJumpsText);
 }
 
 void UOverlayWidgetController::BroadcastInitialValues()
@@ -37,7 +38,7 @@ void UOverlayWidgetController::DisplayTutorialText()
 
 void UOverlayWidgetController::UpdateHUDLives(int32 Amount)
 {
-	OnUpdateLives.Broadcast(-1);
+	OnUpdateLives.Broadcast(Amount);
 }
 
 void UOverlayWidgetController::DisplayDeathText()
@@ -73,4 +74,9 @@ void UOverlayWidgetController::DisplayInterationText(bool bOverlapping)
 void UOverlayWidgetController::DisplayDodgesText(int32 Amount)
 {
 	OnUpdateDodgesText.Broadcast(Amount);
+}
+
+void UOverlayWidgetController::DisplayJumpsText(int32 Amount)
+{
+	OnUpdateJumpsText.Broadcast(Amount);
 }

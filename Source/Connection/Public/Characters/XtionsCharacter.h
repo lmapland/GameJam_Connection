@@ -9,6 +9,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLivesUpdatedSignature, int32, Amount);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDodgesUpdatedSignature, int32, Total);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnJumpsUpdatedSignature, int32, Total);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterDeathSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnOverlappingBox, bool, bIsOverlapping);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLevelSkipRequested);
@@ -33,6 +34,8 @@ public:
 	void Damage(int32 Amount);
 	void TransportCharacter(FVector Location, FRotator Rotation);
 	void SetOverlappedConnectionBox(AConnectionBox* InOverlappedBox);
+	virtual void Jump() override;
+	virtual void Landed(const FHitResult& Hit) override;
 
 	/* Attributes */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Attributes")
@@ -42,7 +45,10 @@ public:
 	int32 MaxHealth = 4;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Attributes")
-	int32 NumDodges = 2;
+	int32 NumDodges = 10;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Attributes")
+	int32 NumJumps = 10;
 
 	UPROPERTY()
 	FOnLivesUpdatedSignature OnLivesUpdated;
@@ -58,6 +64,9 @@ public:
 
 	UPROPERTY()
 	FOnDodgesUpdatedSignature OnDodgesUpdated;
+
+	UPROPERTY()
+	FOnJumpsUpdatedSignature OnJumpsUpdated;
 	
 	UPROPERTY(EditAnywhere, Category = "Character|Attributes")
 	USoundBase* OnDamageSound;
@@ -79,7 +88,10 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Input")
 	UInputAction* DodgeAction;
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Input")
+	UInputAction* JumpAction;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Input")
 	UInputAction* LeaveAction;
 	
@@ -117,6 +129,7 @@ private:
 	float DeathTimout = 5.f;
 
 	bool bIsDodging = false;
+	bool bIsJumping = false;
 
 public:
 	FORCEINLINE bool IsAlive() const { return bAlive; }
