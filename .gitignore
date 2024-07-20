@@ -76,6 +76,9 @@ DerivedDataCache/*
 
 # Don't want any of these files saved; they will be in a submodule
 Content/*
+
+# Except for:
+!Content/Assets/Animations/Roxanne/
 !Content/Blueprints/
 !Content/__ExternalActors__/
 !Content/__ExternalObjects__/
