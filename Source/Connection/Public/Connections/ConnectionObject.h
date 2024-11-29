@@ -23,4 +23,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	/* Indicates whether previous piece of chain is Filled */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Line Properties")
+	bool bIsReady = false;
+
 };

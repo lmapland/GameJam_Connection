@@ -35,7 +35,7 @@ public:
 	void DisplayTutorialText();
 
 	UFUNCTION()
-	void DisplayDeathText();
+	void UpdateHits();
 
 	UFUNCTION()
 	void DisplayWinText();
@@ -49,22 +49,14 @@ public:
 	UFUNCTION()
 	void DisplayJumpsText(int32 Jumps);
 
+	UFUNCTION()
+	void DisplayTotalLevels(int32 TotalLevels);
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayerHurt();
-	
-	UFUNCTION(BlueprintImplementableEvent)
-	void PlayerGainedHealth();
-	
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void SetLives(int32 DefaultLives);
 
-	/*
-	 * This function is called after error-checking takes place.
-	 * Here we assume the XtionsCharacter knows the character can have lives
-	 *  added or subtracted and only calls this function when health > 0 and health < maxhealth
-	 */
 	UFUNCTION()
-	void UpdateLives(int32 Amount);
+	void SetHits();
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UOverlay* Section1;
@@ -88,6 +80,9 @@ public:
 	UTextBlock* InteractionText;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UTextBlock* BoxesText;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UTextBlock* DodgesText;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
@@ -105,7 +100,11 @@ public:
 	UPROPERTY(meta = (BindWidgetAnim), Transient)
 	UWidgetAnimation* NewJumpAnimation;
 
-	int32 CurrentLives = 0;
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UTextBlock* HitsText;
+
+
+	int32 Hits = 0;
 
 	int32 CurrentDodges = -1;
 
@@ -134,8 +133,9 @@ private:
 
 	float TutorialTime = 6.f;
 	float TransportingTime = 6.f;
-	float DeathTime = 5.f;
 	float WinTime = 5.f;
 	float LevelCompleteTime = 3.f;
 	float ConnectionTime = 3.f;
+	int32 TotalBoxes = 1;
+	int32 CurrentBox = 0;
 };

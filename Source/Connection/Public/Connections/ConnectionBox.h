@@ -86,10 +86,6 @@ private:
 	/* Internally, junction is Unconnected */
 	bool bIsUnconnected = true;
 
-	/* Indicates whether previous piece of chain is Filled */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	bool bIsReady = false; // ready to be "filled"
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	bool bIsFilled = false;
 };

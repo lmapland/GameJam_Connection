@@ -11,6 +11,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerWinSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterTransportSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLevelCompleteSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnConnectionMadeSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNewLevelSignature, int32, TotalLevels);
 
 class AStartZone;
 class AXtionsCharacter;
@@ -60,6 +61,9 @@ public:
 	UPROPERTY()
 	FOnConnectionMadeSignature OnConnectionMade;
 
+	UPROPERTY()
+	FOnNewLevelSignature OnNewLevelSignature;
+
 private:
 	void EndTheGame();
 	void TransportPlayer();
@@ -87,5 +91,6 @@ private:
 	int32 MaxLevel = 5;
 
 	FTimerHandle TransportTimer;
+	float TransportTime = 4.f;
 
 };

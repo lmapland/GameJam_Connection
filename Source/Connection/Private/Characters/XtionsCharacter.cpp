@@ -43,8 +43,6 @@ void AXtionsCharacter::BeginPlay()
 
 void AXtionsCharacter::Move(const FInputActionValue& Value)
 {
-	if (!bAlive) return;
-
 	const FVector2D MovementVector = Value.Get<FVector2D>();
 
 	const FRotator Rotation = Controller->GetControlRotation();
@@ -59,19 +57,16 @@ void AXtionsCharacter::Move(const FInputActionValue& Value)
 
 void AXtionsCharacter::Look(const FInputActionValue& Value)
 {
-	if (!bAlive) return;
-
 	const FVector2D LookAxisValue = Value.Get<FVector2D>();
 
-	//UE_LOG(LogTemp, Warning, TEXT("Look X,Y: %f,%f"), LookAxisValue.X, LookAxisValue.Y);
 
-	AddControllerYawInput(LookAxisValue.X);
-	AddControllerPitchInput(LookAxisValue.Y);
+	AddControllerYawInput(LookAxisValue.X * LookSensitivity);
+	AddControllerPitchInput(LookAxisValue.Y * LookSensitivity);
 }
 
 void AXtionsCharacter::Interact(const FInputActionValue& value)
 {
-	if (!bAlive || !OverlappedBox || bIsDodging) return;
+	if (!OverlappedBox || bIsDodging) return;
 
 	OnOverlappingBox.Broadcast(false);
 	OverlappedBox->Use();
@@ -149,37 +144,11 @@ void AXtionsCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 void AXtionsCharacter::Damage(int32 Amount)
 {
-	if (!bAlive || bIsDodging) return;
+	if (bIsDodging) return;
+
+	OnCharacterHit.Broadcast();
 
 	PlaySound(OnDamageSound);
-
-	Health = FMath::Clamp(Health - Amount, 0, MaxHealth);
-	if (Health == 0)
-	{
-		Die();
-	}
-
-	OnLivesUpdated.Broadcast(-1);
-}
-
-void AXtionsCharacter::Die()
-{
-	if (!bAlive) return;
-
-	bAlive = false;
-
-	OnCharacterDeath.Broadcast();
-
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	GetMesh()->SetAllBodiesSimulatePhysics(true);
-	GetMesh()->WakeAllRigidBodies();
-
-	GetWorldTimerManager().SetTimer(DeathTimer, this, &AXtionsCharacter::PostDie, DeathTimout);
-}
-
-void AXtionsCharacter::PostDie()
-{
-	UGameplayStatics::OpenLevel(GetWorld(), "MainMenu");
 }
 
 // Aka level complete / set up new level
@@ -196,11 +165,6 @@ void AXtionsCharacter::TransportCharacter(FVector Location, FRotator Rotation)
 
 	NumJumps += 1;
 	OnJumpsUpdated.Broadcast(NumJumps);
-
-	if (Health == MaxHealth) return;
-
-	Health = FMath::Clamp(Health + 1, 0, MaxHealth);
-	OnLivesUpdated.Broadcast(1);
 }
 
 void AXtionsCharacter::SetOverlappedConnectionBox(AConnectionBox* InOverlappedBox)

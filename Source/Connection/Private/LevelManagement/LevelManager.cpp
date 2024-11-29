@@ -136,12 +136,12 @@ void ULevelManager::ConnectionComplete(int32 LevelOfBox)
 		if (CurrentLevel == MaxLevel)
 		{
 			OnPlayerWin.Broadcast();
-			GetWorld()->GetTimerManager().SetTimer(TransportTimer, this, &ULevelManager::EndTheGame, 6.f);
+			GetWorld()->GetTimerManager().SetTimer(TransportTimer, this, &ULevelManager::EndTheGame, TransportTime);
 		}
 		else
 		{
 			OnCharacterTransport.Broadcast();
-			GetWorld()->GetTimerManager().SetTimer(TransportTimer, this, &ULevelManager::TransportPlayer, 6.f);
+			GetWorld()->GetTimerManager().SetTimer(TransportTimer, this, &ULevelManager::TransportPlayer, TransportTime);
 		}
 	}
 }
@@ -153,6 +153,7 @@ void ULevelManager::EndTheGame()
 
 void ULevelManager::TransportPlayer()
 {
+	OnNewLevelSignature.Broadcast(Levels[CurrentLevel - 1]);
 	Player->TransportCharacter(StartingLocations[CurrentLevel - 1], StartingRotations[CurrentLevel - 1]);
 	bCurrentLevelStarted = false;
 }

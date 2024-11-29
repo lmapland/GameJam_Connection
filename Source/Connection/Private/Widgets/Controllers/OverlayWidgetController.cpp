@@ -18,8 +18,8 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 	LevelManager->OnCharacterTransport.AddDynamic(this, &UOverlayWidgetController::DisplayTransportText);
 	LevelManager->OnConnectionMade.AddDynamic(this, &UOverlayWidgetController::DisplayConnectionText);
 	LevelManager->OnLevelComplete.AddDynamic(this, &UOverlayWidgetController::DisplayLevelCompleteText);
-	Character->OnLivesUpdated.AddDynamic(this, &UOverlayWidgetController::UpdateHUDLives);
-	Character->OnCharacterDeath.AddDynamic(this, &UOverlayWidgetController::DisplayDeathText);
+	LevelManager->OnNewLevelSignature.AddDynamic(this, &UOverlayWidgetController::UpdateTotalLevels);
+	Character->OnCharacterHit.AddDynamic(this, &UOverlayWidgetController::DisplayHitsText);
 	Character->OnOverlappingBox.AddDynamic(this, &UOverlayWidgetController::DisplayInterationText);
 	Character->OnDodgesUpdated.AddDynamic(this, &UOverlayWidgetController::DisplayDodgesText);
 	Character->OnJumpsUpdated.AddDynamic(this, &UOverlayWidgetController::DisplayJumpsText);
@@ -27,8 +27,9 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 
 void UOverlayWidgetController::BroadcastInitialValues()
 {
-	OnInitializeLives.Broadcast(Character->GetStartLives());
+	OnInitializeHits.Broadcast();
 	OnInitializeDodges.Broadcast(Character->GetStartDodges());
+	OnUpdateJumpsText.Broadcast(Character->GetStartJumps());
 }
 
 void UOverlayWidgetController::DisplayTutorialText()
@@ -36,14 +37,9 @@ void UOverlayWidgetController::DisplayTutorialText()
 	OnShowTutorial.Broadcast();
 }
 
-void UOverlayWidgetController::UpdateHUDLives(int32 Amount)
+void UOverlayWidgetController::DisplayHitsText()
 {
-	OnUpdateLives.Broadcast(Amount);
-}
-
-void UOverlayWidgetController::DisplayDeathText()
-{
-	OnShowCharacterDeathText.Broadcast();
+	IncrementHits.Broadcast();
 }
 
 void UOverlayWidgetController::DisplayWinText()
@@ -79,4 +75,10 @@ void UOverlayWidgetController::DisplayDodgesText(int32 Amount)
 void UOverlayWidgetController::DisplayJumpsText(int32 Amount)
 {
 	OnUpdateJumpsText.Broadcast(Amount);
+}
+
+void UOverlayWidgetController::UpdateTotalLevels(int32 TotalLevels)
+{
+	//UE_LOG(LogTemp, Warning, TEXT("UOverlayWidgetController::UpdateTotalLevels(): TotalLevels: %i"), TotalLevels);
+	OnUpdateTotalLevels.Broadcast(TotalLevels);
 }

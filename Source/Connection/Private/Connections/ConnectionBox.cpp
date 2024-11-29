@@ -30,6 +30,11 @@ void AConnectionBox::BeginPlay()
 
 	AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &AConnectionBox::OnSphereOverlap);
 	AreaSphere->OnComponentEndOverlap.AddDynamic(this, &AConnectionBox::OnSphereEndOverlap);
+
+	if (bIsReady)
+	{
+		FillWithColor();
+	}
 }
 
 void AConnectionBox::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

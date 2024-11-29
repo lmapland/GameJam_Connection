@@ -40,7 +40,7 @@ void AEnemy::PostDie()
 
 void AEnemy::CanFire()
 {
-	if (!bAlive || !MyEnemy->IsAlive()) return;
+	if (!bAlive) return;
 
 	if (!CanSeeMyEnemy())
 	{
@@ -82,7 +82,7 @@ AProjectile* AEnemy::SpawnProjectile(FVector LocationToSpawn)
 
 void AEnemy::SimpleFire()
 {
-	if (!bAlive || !MyEnemy->IsAlive()) return;
+	if (!bAlive) return;
 
 	AProjectile* Projectile = SpawnProjectile();
 
@@ -96,7 +96,7 @@ void AEnemy::SimpleFire()
 
 void AEnemy::Fire()
 {
-	if (!bAlive || !MyEnemy->IsAlive()) return;
+	if (!bAlive) return;
 
 	AProjectile* Projectile = SpawnProjectile();
 

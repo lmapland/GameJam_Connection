@@ -7,10 +7,9 @@
 #include "InputActionValue.h"
 #include "XtionsCharacter.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLivesUpdatedSignature, int32, Amount);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDodgesUpdatedSignature, int32, Total);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnJumpsUpdatedSignature, int32, Total);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterDeathSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterHitSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnOverlappingBox, bool, bIsOverlapping);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLevelSkipRequested);
 
@@ -37,13 +36,6 @@ public:
 	virtual void Jump() override;
 	virtual void Landed(const FHitResult& Hit) override;
 
-	/* Attributes */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Attributes")
-	int32 Health = 4; // 4 is easy, 2 is medium, 1 is hard
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Attributes")
-	int32 MaxHealth = 4;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Attributes")
 	int32 NumDodges = 10;
 
@@ -51,10 +43,7 @@ public:
 	int32 NumJumps = 10;
 
 	UPROPERTY()
-	FOnLivesUpdatedSignature OnLivesUpdated;
-
-	UPROPERTY()
-	FOnCharacterDeathSignature OnCharacterDeath;
+	FOnCharacterHitSignature OnCharacterHit;
 
 	UPROPERTY()
 	FOnLevelSkipRequested OnLevelSkipRequested;
@@ -97,9 +86,12 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Input")
 	UInputAction* LevelSkipAction;
-	
+
 	UPROPERTY(EditDefaultsOnly, Category = "Character|Montages")
 	UAnimMontage* DodgeMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Input")
+	float LookSensitivity = 1.f;
 
 private:
 	void Move(const FInputActionValue& Value);
@@ -112,27 +104,19 @@ private:
 	UFUNCTION(BlueprintCallable)
 	void DodgeFinish();
 
-	void Die();
-	void PostDie();
 	void PlaySound(USoundBase* SoundToPlay);
 
 	APlayerController* PlayerController;
 
 	AConnectionBox* OverlappedBox;
 
-	bool bAlive = true;
-
 	FVector TransportLoc;
 	FRotator TransportRot;
-
-	FTimerHandle DeathTimer;
-	float DeathTimout = 5.f;
 
 	bool bIsDodging = false;
 	bool bIsJumping = false;
 
 public:
-	FORCEINLINE bool IsAlive() const { return bAlive; }
-	FORCEINLINE int32 GetStartLives() const { return Health; }
 	FORCEINLINE int32 GetStartDodges() const { return NumDodges; }
+	FORCEINLINE int32 GetStartJumps() const { return NumJumps; }
 };

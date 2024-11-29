@@ -18,6 +18,11 @@ AConnectionLine::AConnectionLine()
 void AConnectionLine::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (bIsReady)
+	{
+		Fill();
+	}
 	
 }
 
@@ -30,6 +35,7 @@ void AConnectionLine::Tick(float DeltaTime)
 void AConnectionLine::SetReady()
 {
 	// Ready to be filled. A line will always Fill when the previous connection is Filled, so we just do the thing here
+	bIsReady = true;
 	Fill();
 }
 

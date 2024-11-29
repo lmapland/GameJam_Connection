@@ -17,18 +17,6 @@
 	}
 }*/
 
-void UOverlayWidget::UpdateLives(int32 Amount)
-{
-	if (Amount < 0)
-	{
-		PlayerHurt();
-	}
-	else
-	{
-		PlayerGainedHealth();
-	}
-}
-
 void UOverlayWidget::NativeConstruct()
 {
 	Section1->SetVisibility(ESlateVisibility::Hidden);
@@ -44,10 +32,9 @@ void UOverlayWidget::SetController(UOverlayWidgetController* InWidgetController)
 {
 	WidgetController = InWidgetController;
 
-	WidgetController->OnInitializeLives.AddDynamic(this, &UOverlayWidget::SetLives);
+	WidgetController->OnInitializeHits.AddDynamic(this, &UOverlayWidget::SetHits);
 	WidgetController->OnShowTutorial.AddDynamic(this, &UOverlayWidget::DisplayTutorialText);
-	WidgetController->OnUpdateLives.AddDynamic(this, &UOverlayWidget::UpdateLives);
-	WidgetController->OnShowCharacterDeathText.AddDynamic(this, &UOverlayWidget::DisplayDeathText);
+	WidgetController->IncrementHits.AddDynamic(this, &UOverlayWidget::UpdateHits);
 	WidgetController->OnShowPlayerWinText.AddDynamic(this, &UOverlayWidget::DisplayWinText);
 	WidgetController->OnShowCharacterTransportText.AddDynamic(this, &UOverlayWidget::DisplayTransportingText);
 	WidgetController->OnShowLevelCompleteText.AddDynamic(this, &UOverlayWidget::DisplayLevelCompleteText);
@@ -56,10 +43,19 @@ void UOverlayWidget::SetController(UOverlayWidgetController* InWidgetController)
 	WidgetController->OnInitializeDodges.AddDynamic(this, &UOverlayWidget::DisplayDodgesText);
 	WidgetController->OnUpdateDodgesText.AddDynamic(this, &UOverlayWidget::DisplayDodgesText);
 	WidgetController->OnUpdateJumpsText.AddDynamic(this, &UOverlayWidget::DisplayJumpsText);
+	WidgetController->OnUpdateTotalLevels.AddDynamic(this, &UOverlayWidget::DisplayTotalLevels);
 }
 
 void UOverlayWidget::DisplayConnectionText()
 {
+	CurrentBox += 1;
+	if (BoxesText)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UOverlayWidget::DisplayConnectionText(): CurrentBox: %i"), CurrentBox);
+		FString BoxesString = FString::Printf(TEXT("Boxes Connected: %i/%i"), CurrentBox, TotalBoxes);
+		BoxesText->SetText(FText::FromString(BoxesString));
+	}
+
 	if (Section1 && !GameOver)
 	{
 		Section1->SetVisibility(ESlateVisibility::Visible);
@@ -100,25 +96,21 @@ void UOverlayWidget::DisplayTutorialPart2Text()
 {
 	if (Section2)
 	{
-		Section2Text->SetText(FText::FromString("[R] or (X) to Dodge"));
+		Section2Text->SetText(FText::FromString("[R] or (Right Trigger) to Dodge"));
 		GetWorld()->GetTimerManager().SetTimer(Section2Handle, this, &UOverlayWidget::HideSection2Text, TutorialTime);
 	}
 }
 
-void UOverlayWidget::DisplayDeathText()
+void UOverlayWidget::UpdateHits()
 {
-	GameOver = true;
-	if (Section4)
+	Hits++;
+	PlayerHurt();
+
+	if (HitsText)
 	{
-		Section4->SetVisibility(ESlateVisibility::Visible);
+		FString HitsString = FString::Printf(TEXT("Hits: %i"), Hits);
+		HitsText->SetText(FText::FromString(HitsString));
 	}
-	if (Section1 && Section2 && Section3)
-	{
-		Section1->SetVisibility(ESlateVisibility::Hidden);
-		Section2->SetVisibility(ESlateVisibility::Hidden);
-		Section3->SetVisibility(ESlateVisibility::Hidden);
-	}
-	GetWorld()->GetTimerManager().SetTimer(Section4Handle, this, &UOverlayWidget::HideSection4Text, DeathTime);
 }
 
 void UOverlayWidget::DisplayWinText()
@@ -191,6 +183,33 @@ void UOverlayWidget::DisplayJumpsText(int32 Jumps)
 	}
 
 	CurrentJumps = Jumps;
+}
+
+void UOverlayWidget::DisplayTotalLevels(int32 TotalLevels)
+{
+	UE_LOG(LogTemp, Warning, TEXT("UOverlayWidget::DisplayTotalLevels(): TotalLevels: %i"), TotalLevels);
+	// This function is only called when a new level is started
+	CurrentBox = 0;
+	TotalBoxes = TotalLevels;
+
+	if (BoxesText)
+	{
+		FString BoxesString = FString::Printf(TEXT("BoxesConnected: %i/%i"), CurrentBox, TotalBoxes);
+		BoxesText->SetText(FText::FromString(BoxesString));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("BoxesText is null"));
+	}
+}
+
+void UOverlayWidget::SetHits()
+{
+	if (HitsText)
+	{
+		FString HitsString = FString::Printf(TEXT("Hits: %i"), Hits);
+		HitsText->SetText(FText::FromString(HitsString));
+	}
 }
 
 void UOverlayWidget::HideSection1Text()
