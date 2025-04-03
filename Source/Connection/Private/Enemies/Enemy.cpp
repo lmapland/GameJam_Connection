@@ -8,6 +8,7 @@
 #include "Enemies/Projectile.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
+#include "Components/CapsuleComponent.h"
 
 AEnemy::AEnemy()
 {
@@ -30,12 +31,18 @@ void AEnemy::BeginPlay()
 	{
 		ForeverComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ForeverParticles, GetActorLocation() - FVector(0.f, 0.f, 120.f));
 	}
+
+	StartingLocation = GetMesh()->GetRelativeLocation();
+	StartingRotation = GetMesh()->GetRelativeRotation();
+	//UE_LOG(LogTemp, Warning, TEXT("Starting rotation: %f, %f, %f"), StartingRotation.Yaw, StartingRotation.Pitch, StartingRotation.Roll);
 }
 
 void AEnemy::PostDie()
 {
-	ForeverComponent->DestroyComponent();
-	Destroy();
+	this->SetActorTickEnabled(false);
+	ForeverComponent->SetVisibility(false);
+	EndElectricParticles();
+	GetMesh()->SetVisibility(false);
 }
 
 void AEnemy::CanFire()
@@ -118,10 +125,44 @@ void AEnemy::Fire()
 	}
 }
 
+void AEnemy::Prepare()
+{
+	//UE_LOG(LogTemp, Warning, TEXT("AEnemy::Prepare(): %s"), *GetName());
+	GetMesh()->SetAllBodiesSimulatePhysics(false);
+	GetMesh()->SetSimulatePhysics(false);
+	GetMesh()->PutAllRigidBodiesToSleep();
+
+	FAttachmentTransformRules AttachmentRules(EAttachmentRule::KeepRelative, EAttachmentRule::KeepRelative, EAttachmentRule::KeepWorld, false);
+	GetMesh()->AttachToComponent(GetCapsuleComponent(), AttachmentRules);
+	GetMesh()->SetRelativeLocation(StartingLocation);
+	GetMesh()->SetRelativeRotation(StartingRotation);
+	
+	GetWorld()->GetTimerManager().SetTimer(PostPrepareHandle, this, &AEnemy::FinishPrepare, PostPrepareTime);
+	//ForeverComponent->SetVisibility(true);
+	//GetMesh()->SetVisibility(true);
+}
+
+void AEnemy::FinishPrepare()
+{
+	GetRootComponent()->SetVisibility(true, true);
+}
+
 void AEnemy::Start()
 {
+	GetRootComponent()->SetVisibility(true, true);
+	bAlive = true;
 	this->SetActorTickEnabled(true);
 	GetWorldTimerManager().SetTimer(FireTimer, this, &AEnemy::CanFire, BeginPlayFiring);
+}
+
+void AEnemy::Stop()
+{
+	bAlive = false;
+	FireTimer.Invalidate();
+
+	this->SetActorTickEnabled(false);
+	ForeverComponent->SetVisibility(false);
+	GetMesh()->SetVisibility(false);
 }
 
 bool AEnemy::CanSeeMyEnemy()
@@ -174,6 +215,7 @@ void AEnemy::Die()
 	GetMesh()->SetAllBodiesSimulatePhysics(true);
 	GetMesh()->SetSimulatePhysics(true);
 	GetMesh()->WakeAllRigidBodies();
+	StartElectricParticles();
 
 	FireTimer.Invalidate();
 

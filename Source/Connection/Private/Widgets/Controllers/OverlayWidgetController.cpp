@@ -14,37 +14,35 @@ void UOverlayWidgetController::SetWidgetControllerParams(AXtionsCharacter* InCha
 void UOverlayWidgetController::BindCallbacksToDependencies()
 {
 	LevelManager->OnLaunchTutorial.AddDynamic(this, &UOverlayWidgetController::DisplayTutorialText);
-	LevelManager->OnPlayerWin.AddDynamic(this, &UOverlayWidgetController::DisplayWinText);
 	LevelManager->OnCharacterTransport.AddDynamic(this, &UOverlayWidgetController::DisplayTransportText);
 	LevelManager->OnConnectionMade.AddDynamic(this, &UOverlayWidgetController::DisplayConnectionText);
 	LevelManager->OnLevelComplete.AddDynamic(this, &UOverlayWidgetController::DisplayLevelCompleteText);
-	LevelManager->OnNewLevelSignature.AddDynamic(this, &UOverlayWidgetController::UpdateTotalLevels);
+	LevelManager->OnNewLevel.AddDynamic(this, &UOverlayWidgetController::UpdateNewLevelInfo);
 	Character->OnCharacterHit.AddDynamic(this, &UOverlayWidgetController::DisplayHitsText);
 	Character->OnOverlappingBox.AddDynamic(this, &UOverlayWidgetController::DisplayInterationText);
 	Character->OnDodgesUpdated.AddDynamic(this, &UOverlayWidgetController::DisplayDodgesText);
-	Character->OnJumpsUpdated.AddDynamic(this, &UOverlayWidgetController::DisplayJumpsText);
+	Character->OnKeyBindingsNeedRebuilt.AddDynamic(this, &UOverlayWidgetController::SendRebuildKeyBindings);
+	Character->OnHoveredInteractable.AddDynamic(this, &UOverlayWidgetController::DisplayHoverText);
+	Character->OnPickedUpInteractable.AddDynamic(this, &UOverlayWidgetController::UpdateInteractableInfo);
+	Character->OnNotReadyToRepair.AddDynamic(this, &UOverlayWidgetController::DisplayRepairNotReadyText);
+
 }
 
 void UOverlayWidgetController::BroadcastInitialValues()
 {
 	OnInitializeHits.Broadcast();
 	OnInitializeDodges.Broadcast(Character->GetStartDodges());
-	OnUpdateJumpsText.Broadcast(Character->GetStartJumps());
 }
 
 void UOverlayWidgetController::DisplayTutorialText()
 {
+	UE_LOG(LogTemp, Warning, TEXT("UOverlayWidgetController::DisplayTutorialText(): OnShowTutorial.Broadcast()"));
 	OnShowTutorial.Broadcast();
 }
 
 void UOverlayWidgetController::DisplayHitsText()
 {
 	IncrementHits.Broadcast();
-}
-
-void UOverlayWidgetController::DisplayWinText()
-{
-	OnShowPlayerWinText.Broadcast();
 }
 
 void UOverlayWidgetController::DisplayTransportText()
@@ -57,9 +55,16 @@ void UOverlayWidgetController::DisplayConnectionText()
 	OnShowConnectionMadeText.Broadcast();
 }
 
-void UOverlayWidgetController::DisplayLevelCompleteText()
+void UOverlayWidgetController::DisplayLevelCompleteText(bool bLevelSuccessfullyCompleted)
 {
-	OnShowLevelCompleteText.Broadcast();
+	if (bLevelSuccessfullyCompleted)
+	{
+		OnShowLevelCompleteText.Broadcast();
+	}
+	else
+	{
+		OnShowLevelFailedText.Broadcast();
+	}
 }
 
 void UOverlayWidgetController::DisplayInterationText(bool bOverlapping)
@@ -72,13 +77,28 @@ void UOverlayWidgetController::DisplayDodgesText(int32 Amount)
 	OnUpdateDodgesText.Broadcast(Amount);
 }
 
-void UOverlayWidgetController::DisplayJumpsText(int32 Amount)
+void UOverlayWidgetController::UpdateNewLevelInfo(int32 InTotalConnectionBoxes, int32 InMaxHits, TArray<int32> InRequiredObjects, TArray<int32> InObjectCounts)
 {
-	OnUpdateJumpsText.Broadcast(Amount);
+	UE_LOG(LogTemp, Warning, TEXT("UOverlayWidgetController::UpdateNewLevelInfo(): InTotalConnectionBoxes: %i, InMaxHits: %i"), InTotalConnectionBoxes, InMaxHits);
+	OnShowNewLevelInfo.Broadcast(InTotalConnectionBoxes, InMaxHits, InRequiredObjects, InObjectCounts);
 }
 
-void UOverlayWidgetController::UpdateTotalLevels(int32 TotalLevels)
+void UOverlayWidgetController::SendRebuildKeyBindings()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("UOverlayWidgetController::UpdateTotalLevels(): TotalLevels: %i"), TotalLevels);
-	OnUpdateTotalLevels.Broadcast(TotalLevels);
+	OnRebuildKeyBindings.Broadcast();
+}
+
+void UOverlayWidgetController::DisplayHoverText(FString HoverText)
+{
+	OnUpdateHoverText.Broadcast(HoverText);
+}
+
+void UOverlayWidgetController::UpdateInteractableInfo(int32 InID, int32 InCount, bool InShowEnabled)
+{
+	OnUpdateInteractableInfo.Broadcast(InID, InCount, InShowEnabled);
+}
+
+void UOverlayWidgetController::DisplayRepairNotReadyText()
+{
+	OnDisplayRepairNotReadyText.Broadcast();
 }

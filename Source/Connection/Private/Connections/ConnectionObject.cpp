@@ -3,10 +3,10 @@
 
 #include "Connections/ConnectionObject.h"
 
+
 AConnectionObject::AConnectionObject()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
 }
 
 void AConnectionObject::BeginPlay()
@@ -23,5 +23,10 @@ void AConnectionObject::Tick(float DeltaTime)
 
 void AConnectionObject::SetReady()
 {
+}
+
+FVector AConnectionObject::GetBeamAttachPoint()
+{
+	return FVector(0.f);
 }
 

@@ -9,7 +9,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnConnect, int32, InLevel);
 
 class UStaticMeshComponent;
-class USphereComponent;
+class UBoxComponent;
 class UNiagaraSystem;
 class USoundBase;
 
@@ -22,29 +22,29 @@ public:
 	AConnectionBox();
 	virtual void Tick(float DeltaTime) override;
 	bool Use();
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void ConnectBoxes();
-
-	UFUNCTION(BlueprintCallable)
-	void BoxesAreConnected();
-
-	void Fill();
-
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void FillWithColor();
-
 	virtual void SetReady() override;
 	void SetConnected();
+	void BoxesAreConnected();
+	void Fill();
+	virtual FVector GetBeamAttachPoint() override;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void Stop() override;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void SetParticleState(bool bElectrified, bool bConnected);
+
+	//UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	//void SetVisuallyFilled();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Box Properties")
+	USceneComponent* DefaultComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Box Properties")
 	UStaticMeshComponent* ConnectedBox;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Box Properties")
-	UStaticMeshComponent* UnconnectedBox;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Box Properties")
-	USphereComponent* AreaSphere;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Box Properties")
+	UBoxComponent* AreaBox;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Box Properties")
 	TSubclassOf<AActor> EnemyClass;
@@ -58,8 +58,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Box Properties")
 	UNiagaraSystem* ConnectedParticles;
 	
-	UPROPERTY(EditAnywhere, Category = "Box Properties")
-	USoundBase* UseInitialSound;
+	/*UPROPERTY(EditAnywhere, Category = "Box Properties")
+	USoundBase* UseInitialSound;*/
 	
 	UPROPERTY(EditAnywhere, Category = "Box Properties")
 	USoundBase* UseCompleteSound;
@@ -73,9 +73,18 @@ protected:
 	UFUNCTION()
 	void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Box Properties")
+	FVector BeamEnd = FVector(0.f);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Box Properties")
+	FVector BeamEndUnconnected = FVector(0.f);
+
 private:
 	void SpawnParticles(UNiagaraSystem* ParticlesToSpawn, FVector LocationToSpawn);
 	void PlaySound(USoundBase* SoundToPlay);
+
+	UFUNCTION(BlueprintCallable)
+	void ResetState();
 
 	/*
 	* if Connected, cannot be connected again
@@ -83,9 +92,6 @@ private:
 	* if Connected AND Ready, should be filled
 	*/
 
-	/* Internally, junction is Unconnected */
-	bool bIsUnconnected = true;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	bool bIsFilled = false;
+	/* Internally, junction is not Connected */
+	bool bIsConnected = false;
 };

@@ -11,26 +11,39 @@
 ULevelManager::ULevelManager()
 {
 	// Index 0 - Level 1
-	Levels.Add(1); // To finish level 1 (0th slot), only 1 ConnectionBox needs to be connected
-	StartingLocations.Add(FVector(0.f)); // Index 0 should be empty as the character starts, for level 1, at the location of the Player Start
-	StartingRotations.Add(FRotator(0.f));
+	Levels.Add(FLevelInfo());
+	Levels[0].MaxHits = 3;
+	Levels[0].Location = FVector(41231.f, -64797.f, 4390.f);
+	Levels[0].Rotation = FRotator(0.f, 30.f, 0.f);
+	Levels[0].RequiredObjects.Add(1);
+	Levels[0].ObjectCounts.Add(1);
 
 	// Index 1 - Level 2
-	Levels.Add(2);
-	StartingLocations.Add(FVector(14600.f, -3160.f, 5598.f));
-	//StartingLocations.Add(FVector(19694.f, -451.f, 5946.f));
-	StartingRotations.Add(FRotator(0.f, 90.f, 0.f));
+	Levels.Add(FLevelInfo());
+	Levels[1].Connections = 2;
+	Levels[1].Location = FVector(25952.f, -45933.f, 3100.f);
+	Levels[1].Rotation = FRotator(0.f, 0.f, 0.f);
+	Levels[1].RequiredObjects.Add(2);
+	Levels[1].ObjectCounts.Add(3);
 
 	// Index 2 - Level 3
-	Levels.Add(2);
-	StartingLocations.Add(FVector(12320.f, -7170.f, 5946.f));
-	StartingRotations.Add(FRotator(0.f, 0.f, 0.f));
+	Levels.Add(FLevelInfo());
+	Levels[2].Connections = 1;
+	Levels[2].Location = FVector(26635.f, -15786.f, 4194.f);
+	//Levels[2].Location = FVector(29357.f, -18224.f, 5135.f);
+	Levels[2].Rotation = FRotator(0.f, -117.f, 0.f);
+	Levels[2].RequiredObjects.Add(4);
+	Levels[2].RequiredObjects.Add(3);
+	Levels[2].ObjectCounts.Add(1);
+	Levels[2].ObjectCounts.Add(3);
 
 	// Index 3 - Level 4
-	Levels.Add(2);
-	StartingLocations.Add(FVector(18196.f, 6319.f, 5960.f));
-	StartingRotations.Add(FRotator(0.f, -90.f, 0.f));
+	//Levels.Add(FLevelInfo());
+	//Levels[3].Connections = 2;
+	//Levels[3].Location = FVector(18196.f, 6319.f, 5960.f);
+	//Levels[3].Rotation = FRotator(0.f, 90.f, 0.f);
 
+	/*
 	// Index 4 - Level 5
 	Levels.Add(1);
 	StartingLocations.Add(FVector(19370.f, 9710.f, 6120.f));
@@ -40,11 +53,14 @@ ULevelManager::ULevelManager()
 	Levels.Add(1);
 	StartingLocations.Add(FVector(18160.f, 6360.f, 5960.f));
 	StartingRotations.Add(FRotator(0.f, 0.f, 0.f));
-
+	*/
 }
 
-void ULevelManager::Setup()
+void ULevelManager::Setup(TArray<int32> InLevelCompletions, TArray<float> InLevelTimes)
 {
+	LevelCompletions = InLevelCompletions;
+	LevelTimes = InLevelTimes;
+
 	// Bind to Start Zones for all levels
 	TArray<AActor*> AllStartZones;
 	UGameplayStatics::GetAllActorsOfClass(this, AStartZone::StaticClass(), AllStartZones);
@@ -75,8 +91,21 @@ void ULevelManager::Setup()
 	AActor* ActorOwner = UGameplayStatics::GetActorOfClass(this, AXtionsCharacter::StaticClass());
 	if (ActorOwner) Player = Cast<AXtionsCharacter>(ActorOwner);
 	Player->OnLevelSkipRequested.AddUniqueDynamic(this, &ULevelManager::SkipCurrentLevel);
+	Player->OnLevelSelectOpened.AddUniqueDynamic(this, &ULevelManager::TearDownLevel);
 
-	OnLaunchTutorial.Broadcast();
+	// Load default LevelTimes, LevelSelections values
+	for (int i = 0; i < Levels.Num(); i++)
+	{
+		if (LevelCompletions.Num() <= i)
+		{
+			LevelCompletions.Add(0);
+		}
+		if (LevelTimes.Num() <= i)
+		{
+			LevelTimes.Add(MAX_FLT);
+		}
+		OnLevelStatsUpdated.Broadcast(i + 1, LevelCompletions[i], LevelTimes[i]);
+	}
 }
 
 void ULevelManager::SkipCurrentLevel()
@@ -103,6 +132,7 @@ void ULevelManager::CharacterInPlay(int32 InLevel)
 	//UE_LOG(LogTemp, Warning, TEXT("CharacterInPlay(): CurrentLevel: %i, InLevel: %i"), CurrentLevel, InLevel);
 	if (bCurrentLevelStarted || InLevel != CurrentLevel) return;
 	bCurrentLevelStarted = true;
+	LastLevelPlayed = CurrentLevel;
 
 	TArray<AActor*> AllActors;
 	FString LevelString("");
@@ -116,44 +146,133 @@ void ULevelManager::CharacterInPlay(int32 InLevel)
 			ActorCanTurnOn->Start();
 		}
 	}
+	InitialTime = GetWorld()->GetTimeSeconds();
 }
 
 void ULevelManager::ConnectionComplete(int32 LevelOfBox)
 {
-	//UE_LOG(LogTemp, Warning, TEXT("ConnectionComplete: %i, Current Level: %i, Current Progress: %i, # Boxes this level: %i"), LevelOfBox, CurrentLevel, Progress, Levels[CurrentLevel - 1]);
+	UE_LOG(LogTemp, Warning, TEXT("ConnectionComplete: %i, Current Level: %i, Current Progress: %i, # Boxes this level: %i"), LevelOfBox, CurrentLevel, Progress, Levels[CurrentLevel - 1].Connections);
 	if (LevelOfBox != CurrentLevel) return;
 
 	OnConnectionMade.Broadcast();
 	Progress++;
 
-	if (Progress == Levels[CurrentLevel - 1])
+	// Is the level complete?
+	if (Progress == Levels[CurrentLevel - 1].Connections)
 	{
-		OnLevelComplete.Broadcast();
+		// Should the player progress to the next level or replay this one?
+		bool bLevelSuccessfullyCompleted = Player->GetHits() <= Levels[CurrentLevel - 1].MaxHits ? true : false;
+		OnLevelComplete.Broadcast(bLevelSuccessfullyCompleted);
+		
 		Progress = 0;
-		CurrentLevel++;
 		bCurrentLevelStarted = false;
 
-		if (CurrentLevel == MaxLevel)
+		if (bLevelSuccessfullyCompleted)
 		{
-			OnPlayerWin.Broadcast();
-			GetWorld()->GetTimerManager().SetTimer(TransportTimer, this, &ULevelManager::EndTheGame, TransportTime);
+			// TODO time the level and update that time here
+			LevelCompletions[CurrentLevel - 1] += 1;
+			LevelTime = GetWorld()->GetTimeSeconds() - InitialTime;
+			if (LevelTime < LevelTimes[CurrentLevel - 1])
+			{
+				LevelTimes[CurrentLevel - 1] = LevelTime;
+			}
+			UE_LOG(LogTemp, Warning, TEXT("ConnectionComplete(): %f - %f = %f seconds"), GetWorld()->GetTimeSeconds(), InitialTime, LevelTime);
+			OnLevelStatsUpdated.Broadcast(CurrentLevel, LevelCompletions[CurrentLevel - 1], LevelTimes[CurrentLevel - 1]);
+
+			CurrentLevel++;
+			if (CurrentLevel == MaxLevel)
+			{
+				GetWorld()->GetTimerManager().SetTimer(TransportTimer, this, &ULevelManager::EndTheGame, TransportTime);
+			}
+			else
+			{
+				OnCharacterTransport.Broadcast();
+				GetWorld()->GetTimerManager().SetTimer(TransportTimer, this, &ULevelManager::TransportPlayer, TransportTime);
+			}
 		}
 		else
 		{
 			OnCharacterTransport.Broadcast();
-			GetWorld()->GetTimerManager().SetTimer(TransportTimer, this, &ULevelManager::TransportPlayer, TransportTime);
+			GetWorld()->GetTimerManager().SetTimer(TransportTimer, this, &ULevelManager::RestartLevel, TransportTime);
+			// Figure out how to bind params to a Timer and call a different function instead
+			// That different function needs to call TearDownLevel and then StartLevel(CurrentLevel) instead
+			// Since the player is restarting the current level. Yuck.
 		}
 	}
 }
 
 void ULevelManager::EndTheGame()
 {
-	UGameplayStatics::OpenLevel(GetWorld(), "MainMenu");
+	Player->OpenLevelSelect();
+}
+
+void ULevelManager::RestartLevel()
+{
+	TearDownLevel();
+	StartLevel(CurrentLevel);
+}
+
+void ULevelManager::TearDownLevel()
+{
+	UE_LOG(LogTemp, Warning, TEXT("ULevelManager::TearDownLevel(): %i"), LastLevelPlayed);
+	TArray<AActor*> AllActors;
+	FString LevelString("");
+	LevelString.AppendInt(LastLevelPlayed);
+	UGameplayStatics::GetAllActorsWithTag(this, FName(*LevelString), AllActors);
+
+	for (auto CurrentActor : AllActors)
+	{
+		if (auto ActorCanTurnOn = Cast<ICanTurnOn>(CurrentActor))
+		{
+			ActorCanTurnOn->Stop();
+		}
+	}
+}
+
+void ULevelManager::StartLevel(int32 LevelToStart)
+{
+	UE_LOG(LogTemp, Warning, TEXT("ULevelManager::StartLevel(): Getting all actors with tag (level) %i"), LevelToStart);
+	if (LevelToStart > Levels.Num() || LevelToStart < 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Invalid level passed in. Level %i is not in array Levels.Num() (%i)"), LevelToStart, Levels.Num());
+		return;
+	}
+
+	CurrentLevel = LevelToStart;
+	//OnNewLevel.Broadcast(Levels[CurrentLevel - 1].Connections, Levels[CurrentLevel - 1].MaxHits);
+	OnStartLevel.Broadcast(CurrentLevel);
+
+	if (CurrentLevel == 1)
+	{
+		OnLaunchTutorial.Broadcast();
+	}
+
+	TArray<AActor*> AllActors;
+	FString LevelString("");
+	LevelString.AppendInt(CurrentLevel);
+	UGameplayStatics::GetAllActorsWithTag(this, FName(*LevelString), AllActors);
+
+	for (auto CurrentActor : AllActors)
+	{
+		if (auto ActorCanTurnOn = Cast<ICanTurnOn>(CurrentActor))
+		{
+			ActorCanTurnOn->Prepare();
+		}
+	}
+
+	TransportPlayer(LevelToStart);
 }
 
 void ULevelManager::TransportPlayer()
 {
-	OnNewLevelSignature.Broadcast(Levels[CurrentLevel - 1]);
-	Player->TransportCharacter(StartingLocations[CurrentLevel - 1], StartingRotations[CurrentLevel - 1]);
+	TearDownLevel();
+	StartLevel(CurrentLevel);
+	//TransportPlayer(CurrentLevel);
+}
+
+void ULevelManager::TransportPlayer(int32 ToLevel)
+{
+	OnNewLevel.Broadcast(Levels[ToLevel - 1].Connections, Levels[ToLevel - 1].MaxHits, Levels[ToLevel - 1].RequiredObjects, Levels[ToLevel - 1].ObjectCounts);
+	Player->TransportCharacter(Levels[ToLevel - 1]);
 	bCurrentLevelStarted = false;
 }

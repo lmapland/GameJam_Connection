@@ -16,6 +16,7 @@ void AStartZone::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	StartLocationZ = GetActorLocation().Z;
 	BoxCollider->OnComponentEndOverlap.AddDynamic(this, &AStartZone::EndOverlap);
 }
 
@@ -33,6 +34,11 @@ void AStartZone::Tick(float DeltaTime)
 void AStartZone::CharacterExited(int32 InLevel)
 {
 	OnCharacterExitDelegate.Broadcast(InLevel);
-	Destroy();
+	SetActorLocation(FVector(GetActorLocation().X, GetActorLocation().Y, StartLocationZ - DistanceToDrop));
+}
+
+void AStartZone::Prepare()
+{
+	SetActorLocation(FVector(GetActorLocation().X, GetActorLocation().Y, StartLocationZ));
 }
 

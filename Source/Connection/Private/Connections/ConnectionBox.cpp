@@ -2,7 +2,7 @@
 
 
 #include "Connections/ConnectionBox.h"
-#include "Components/SphereComponent.h"
+#include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -14,26 +14,39 @@ AConnectionBox::AConnectionBox()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	DefaultComponent = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultComponent"));
+	SetRootComponent(DefaultComponent);
+
 	ConnectedBox = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ConnectedBox"));
-	SetRootComponent(ConnectedBox);
+	ConnectedBox->SetupAttachment(GetRootComponent());
 
-	UnconnectedBox = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("UnconnectedBox"));
-	UnconnectedBox->SetupAttachment(GetRootComponent());
+	AreaBox = CreateDefaultSubobject<UBoxComponent>(TEXT("AreaBox"));
+	AreaBox->SetupAttachment(GetRootComponent());
 
-	AreaSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AreaSphere"));
-	AreaSphere->SetupAttachment(GetRootComponent());
+	BeamEndComponent = CreateDefaultSubobject<USceneComponent>(TEXT("BeamEnd"));
+	BeamEndComponent->SetupAttachment(GetRootComponent());
 }
 
 void AConnectionBox::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &AConnectionBox::OnSphereOverlap);
-	AreaSphere->OnComponentEndOverlap.AddDynamic(this, &AConnectionBox::OnSphereEndOverlap);
+	AreaBox->OnComponentBeginOverlap.AddDynamic(this, &AConnectionBox::OnSphereOverlap);
+	AreaBox->OnComponentEndOverlap.AddDynamic(this, &AConnectionBox::OnSphereEndOverlap);
 
-	if (bIsReady)
+	bIsOriginallyReady = bIsReady;
+
+	if (NextPiece)
 	{
-		FillWithColor();
+		BeamEnd = NextPiece->GetBeamAttachPoint();
+		BeamEndUnconnected = GetActorForwardVector() * (FVector::DistXY(BeamEnd, GetActorLocation()) / 2) + GetActorLocation();
+		BeamEndUnconnected.Z -= 100.f;
+	}
+
+	if (bIsFirst && bIsReady)
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("BeginPlay(): SetParticleStateReady being called on %s, Beam End: %f, %f"), *GetName(), BeamEndUnconnected.X, BeamEndUnconnected.Y);
+		SetParticleState(bIsReady, bIsConnected);
 	}
 }
 
@@ -63,13 +76,13 @@ void AConnectionBox::Tick(float DeltaTime)
 
 bool AConnectionBox::Use()
 {
-	if (!bIsUnconnected) return false;
-	bIsUnconnected = false;
+	if (bIsConnected) return false;
+	bIsConnected = true;
 
 	OnConnectDelegate.Broadcast(Level);
-	ConnectBoxes();
-	AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	PlaySound(UseInitialSound);
+	BoxesAreConnected();
+	AreaBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//PlaySound(UseInitialSound);
 
 	return true;
 }
@@ -99,10 +112,17 @@ void AConnectionBox::BoxesAreConnected()
 
 void AConnectionBox::SetReady()
 {
+	//UE_LOG(LogTemp, Warning, TEXT("ConnectionBox::SetReady(): %s"), *GetName());
 	bIsReady = true;
-	if (!bIsUnconnected) // Connected
+	if (bIsConnected)
 	{
+		//UE_LOG(LogTemp, Warning, TEXT("ConnectionBox::SetReady(): Is Connected; filling"));
 		Fill();
+	}
+	else
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("ConnectionBox::SetReady(): is NOT connected; SetParticleStateReady called on %s, Beam End: %f, %f"), *GetName(), BeamEndUnconnected.X, BeamEndUnconnected.Y);
+		SetParticleState(bIsReady, bIsConnected);
 	}
 }
 
@@ -130,13 +150,27 @@ void AConnectionBox::PlaySound(USoundBase* SoundToPlay)
 	}
 }
 
+void AConnectionBox::ResetState()
+{
+	//UE_LOG(LogTemp, Warning, TEXT("AConnectionBox::ResetState(): Setting bIsConnected to false"));
+	bIsReady = bIsOriginallyReady;
+	bIsConnected = false;
+	AreaBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+}
+
 void AConnectionBox::Fill()
 {
-	bIsFilled = true;
-	FillWithColor();
+	//UE_LOG(LogTemp, Warning, TEXT("Fill(): SetParticleStateReady called on %s, Beam End: %f, %f"), *GetName(), BeamEndUnconnected.X, BeamEndUnconnected.Y);
+	SetParticleState(bIsReady, bIsConnected);
 
-	if (NextPiece)
+	if (bIsConnected && NextPiece)
 	{
 		NextPiece->SetReady();
 	}
+}
+
+FVector AConnectionBox::GetBeamAttachPoint()
+{
+	return BeamEndComponent->GetComponentLocation();
+	//return ConnectedBox->GetSocketLocation(FName("BeamEnd"));
 }

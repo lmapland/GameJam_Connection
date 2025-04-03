@@ -8,8 +8,10 @@
 
 class UOverlay;
 class UTextBlock;
+class UHorizontalBox;
 class UOverlayWidgetController;
 class UWidgetAnimation;
+class UMissionItemsContainer;
 
 /**
  *
@@ -29,6 +31,9 @@ public:
 	void DisplayLevelCompleteText();
 
 	UFUNCTION()
+	void DisplayLevelFailedText();
+
+	UFUNCTION()
 	void DisplayTransportingText();
 
 	UFUNCTION()
@@ -37,8 +42,8 @@ public:
 	UFUNCTION()
 	void UpdateHits();
 
-	UFUNCTION()
-	void DisplayWinText();
+	//UFUNCTION()
+	//void DisplayWinText();
 
 	UFUNCTION()
 	void DisplayInteractionText(bool bIsVisible);
@@ -46,17 +51,20 @@ public:
 	UFUNCTION()
 	void DisplayDodgesText(int32 Dodges);
 
-	UFUNCTION()
-	void DisplayJumpsText(int32 Jumps);
-
-	UFUNCTION()
-	void DisplayTotalLevels(int32 TotalLevels);
+	//UFUNCTION()
+	//void DisplayJumpsText(int32 Jumps);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayerHurt();
 
 	UFUNCTION()
 	void SetHits();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void HitsOverMaximum();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void HitsUnderMaximum();
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UOverlay* Section1;
@@ -66,18 +74,18 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UOverlay* Section3;
-	
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	UOverlay* Section4;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UTextBlock* Section2Text;
-	
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	UTextBlock* Section4Text;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	UTextBlock* InteractionText;
+	UTextBlock* Section3Text;
+
+	//UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	//UTextBlock* InteractionText;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UHorizontalBox* InteractionHorizBox;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UTextBlock* BoxesText;
@@ -86,42 +94,48 @@ public:
 	UTextBlock* DodgesText;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	UTextBlock* DodgesAnimText;
-
-	UPROPERTY(meta = (BindWidgetAnim), Transient)
-	UWidgetAnimation* NewDodgeAnimation;
-
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	UTextBlock* JumpsText;
-
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	UTextBlock* JumpsAnimText;
-
-	UPROPERTY(meta = (BindWidgetAnim), Transient)
-	UWidgetAnimation* NewJumpAnimation;
-
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UTextBlock* HitsText;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UTextBlock* HoverName;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UMissionItemsContainer* MissionItemsContainer;
 
 
 	int32 Hits = 0;
 
 	int32 CurrentDodges = -1;
 
-	int32 CurrentJumps = -1;
-
 	UPROPERTY(BlueprintReadOnly)
 	bool GameOver = false;
 
 protected:
-	virtual void NativeConstruct() override;
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void SetKeyBindIcons();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void RebuildCustomInputMappings();
 
 private:
 	void HideSection1Text();
 	void HideSection2Text();
 	void HideSection3Text();
-	void HideSection4Text();
-	void DisplayTutorialPart2Text();
+
+	UFUNCTION()
+	void DisplayNewLevelInfo(int32 InTotalConnectionBoxes, int32 InMaxHits, TArray<int32> InRequiredObjects, TArray<int32> InObjectCounts);
+
+	UFUNCTION()
+	void RebuildKeyBindings();
+
+	UFUNCTION()
+	void DisplayHoverText(FString HoverText);
+
+	UFUNCTION()
+	void UpdateInteractableInfo(int32 InID, int32 InCount, bool InShowEnabled);
+
+	UFUNCTION()
+	void DisplayRepairNotReadyText();
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	UOverlayWidgetController* WidgetController;
@@ -136,6 +150,10 @@ private:
 	float WinTime = 5.f;
 	float LevelCompleteTime = 3.f;
 	float ConnectionTime = 3.f;
-	int32 TotalBoxes = 1;
+	float PlayerErrorTime = 2.f;
+
 	int32 CurrentBox = 0;
+	int32 TotalBoxes = 1;
+
+	int32 MaxHits = 0;
 };

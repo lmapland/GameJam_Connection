@@ -10,6 +10,8 @@ class AXtionsCharacter;
 class ULevelManager;
 class UOverlayWidgetController;
 class UOverlayWidget;
+class ULevelSelection;
+class UMissionDescription;
 
 /**
  * 
@@ -21,9 +23,17 @@ class CONNECTION_API AXtionsHUD : public AHUD
 
 public:
 	void InitOverlay(AXtionsCharacter* InCharacter, ULevelManager* InLevelManager);
+	void SetShowOverlay(bool bShowOverlay);
+	void ShowLevelSelectionScreen();
 
 	UPROPERTY(EditAnywhere, Category = "HUD")
 	TSubclassOf<UUserWidget> OverlayClass;
+
+	UPROPERTY(EditAnywhere, Category = "HUD")
+	TSubclassOf<UUserWidget> LevelSelectionClass;
+
+	UPROPERTY(EditAnywhere, Category = "HUD")
+	TSubclassOf<UUserWidget> PreGameMissionDescClass;
 
 private:
 	UPROPERTY()
@@ -31,4 +41,15 @@ private:
 
 	UPROPERTY()
 	UOverlayWidgetController* OverlayController;
+
+	UPROPERTY()
+	AXtionsCharacter* Character;
+
+	UPROPERTY()
+	ULevelSelection* SelectLevelScreen;
+
+	UPROPERTY()
+	UMissionDescription* MissionDescription;
+
+	bool bOverlayIsShown = false;
 };

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Interfaces/CanTurnOn.h"
 #include "StartZone.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCharacterExit, int32, InLevel);
@@ -11,7 +12,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCharacterExit, int32, InLevel);
 class UBoxComponent;
 
 UCLASS()
-class CONNECTION_API AStartZone : public AActor
+class CONNECTION_API AStartZone : public AActor, public ICanTurnOn
 {
 	GENERATED_BODY()
 	
@@ -19,9 +20,13 @@ public:
 	AStartZone();
 	virtual void Tick(float DeltaTime) override;
 	void CharacterExited(int32 InLevel);
+	virtual void Prepare() override;
 	
 	UPROPERTY()
 	FOnCharacterExit OnCharacterExitDelegate;
+
+	float StartLocationZ;
+	float DistanceToDrop = 10000.f;
 
 protected:
 	virtual void BeginPlay() override;

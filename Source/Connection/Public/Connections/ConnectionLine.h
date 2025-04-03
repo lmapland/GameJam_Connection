@@ -19,9 +19,14 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetReady() override;
 	void Fill();
+	virtual FVector GetBeamAttachPoint() override;
+	virtual void Prepare() override;
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void SetMaterial();
+	void Stop() override;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void SetVisuallyFilled();
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Line Properties")
 	UStaticMeshComponent* ConnectedLine;
@@ -32,7 +37,6 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-private:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	bool bIsFilled = false;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Line Properties")
+	FVector BeamEnd = FVector(0.f);
 };

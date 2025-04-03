@@ -10,14 +10,17 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnShowTutorialSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInitializeHitsSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInitializeDodgesSignature, int32, Dodges);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateDodgesSignature, int32, Dodges);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateJumpsSignature, int32, Jumps);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnIncrementHitsSignature);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnShowPlayerWinTextSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnShowCharacterTransportTextSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnShowLevelCompleteTextSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnShowLevelFailedTextSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnShowConnectionMadeTextSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnShowInteractionText, bool, isOverlapping);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateTotalLevels, int32, TotalLevels);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnShowNewLevelInfo, int32, InTotalConnectionBoxes, int32, InMaxHits, TArray<int32>, InRequiredObjects, TArray<int32>, InObjectCounts);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnRebuildKeyBindings);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateHoverText, FString, HoverText);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnUpdateInteractableInfo, int32, InID, int32, InCount, bool, InshowEnabled);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDisplayRepairNotReadyText);
 
 class AXtionsCharacter;
 class ULevelManager;
@@ -33,7 +36,7 @@ public:
 	void SetWidgetControllerParams(AXtionsCharacter* InCharacter, ULevelManager* InLevelManager);
 	void BindCallbacksToDependencies();
 	void BroadcastInitialValues();
-	
+
 	UPROPERTY()
 	FOnShowTutorialSignature OnShowTutorial;
 
@@ -44,13 +47,13 @@ public:
 	FOnInitializeHitsSignature OnInitializeHits;
 
 	UPROPERTY()
-	FOnShowPlayerWinTextSignature OnShowPlayerWinText;
-
-	UPROPERTY()
 	FOnShowCharacterTransportTextSignature OnShowCharacterTransportText;
 
 	UPROPERTY()
 	FOnShowLevelCompleteTextSignature OnShowLevelCompleteText;
+
+	UPROPERTY()
+	FOnShowLevelFailedTextSignature OnShowLevelFailedText;
 
 	UPROPERTY()
 	FOnShowConnectionMadeTextSignature OnShowConnectionMadeText;
@@ -60,15 +63,24 @@ public:
 
 	UPROPERTY()
 	FOnInitializeDodgesSignature OnInitializeDodges;
-	
+
 	UPROPERTY()
 	FOnUpdateDodgesSignature OnUpdateDodgesText;
 
 	UPROPERTY()
-	FOnUpdateJumpsSignature OnUpdateJumpsText;
+	FOnShowNewLevelInfo OnShowNewLevelInfo;
 
 	UPROPERTY()
-	FOnUpdateTotalLevels OnUpdateTotalLevels;
+	FOnRebuildKeyBindings OnRebuildKeyBindings;
+
+	UPROPERTY()
+	FOnUpdateHoverText OnUpdateHoverText;
+
+	UPROPERTY()
+	FOnUpdateInteractableInfo OnUpdateInteractableInfo;
+
+	UPROPERTY()
+	FOnDisplayRepairNotReadyText OnDisplayRepairNotReadyText;
 
 private:
 	UFUNCTION()
@@ -78,16 +90,13 @@ private:
 	void DisplayHitsText();
 
 	UFUNCTION()
-	void DisplayWinText();
-
-	UFUNCTION()
 	void DisplayTransportText();
 
 	UFUNCTION()
 	void DisplayConnectionText();
 
 	UFUNCTION()
-	void DisplayLevelCompleteText();
+	void DisplayLevelCompleteText(bool bLevelSuccessfullyCompleted);
 
 	UFUNCTION()
 	void DisplayInterationText(bool bOverlapping);
@@ -96,10 +105,19 @@ private:
 	void DisplayDodgesText(int32 Amount);
 
 	UFUNCTION()
-	void DisplayJumpsText(int32 Amount);
+	void UpdateNewLevelInfo(int32 InTotalConnectionBoxes, int32 InMaxHits, TArray<int32> InRequiredObjects, TArray<int32> InObjectCounts);
 
 	UFUNCTION()
-	void UpdateTotalLevels(int32 TotalLevels);
+	void SendRebuildKeyBindings();
+
+	UFUNCTION()
+	void DisplayHoverText(FString HoverText);
+
+	UFUNCTION()
+	void UpdateInteractableInfo(int32 InID, int32 InCount, bool InShowEnabled);
+
+	UFUNCTION()
+	void DisplayRepairNotReadyText();
 
 	UPROPERTY()
 	ULevelManager* LevelManager;

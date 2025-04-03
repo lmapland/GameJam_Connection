@@ -31,7 +31,15 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Fire();
 
+	virtual void Prepare() override;
 	virtual void Start() override;
+	virtual void Stop() override;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void StartElectricParticles();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void EndElectricParticles();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy|Combat")
 	float MaxFireDistance = 4000.f;
@@ -63,6 +71,10 @@ private:
 	AProjectile* SpawnProjectile(FVector LocationToSpawn = FVector(0.f));
 	void PlaySound(USoundBase* SoundToPlay);
 	bool CanSeeMyEnemy();
+	void FinishPrepare();
+
+	FVector StartingLocation;
+	FRotator StartingRotation;
 
 	FTimerHandle DeathTimer;
 	float UntilDisappear = 4.f;
@@ -95,4 +107,7 @@ private:
 	bool bAlive = true;
 
 	UNiagaraComponent* ForeverComponent;
+
+	FTimerHandle PostPrepareHandle;
+	float PostPrepareTime = .1f;
 };
