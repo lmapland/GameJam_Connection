@@ -30,13 +30,28 @@ int32 AItem::GetInteractableID()
 void AItem::Interact()
 {
 	PlayPickupSound();
-	Destroy();
+	Stop();
+}
+
+void AItem::Prepare()
+{
+	SetActorLocation(OriginalLocation);
+}
+
+void AItem::Start()
+{
+}
+
+void AItem::Stop()
+{
+	SetActorLocation(GetActorLocation() - FVector(0.f, 0.f, 2000.f));
 }
 
 void AItem::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	OriginalLocation = GetActorLocation();
 }
 
 void AItem::PlayPickupSound()
