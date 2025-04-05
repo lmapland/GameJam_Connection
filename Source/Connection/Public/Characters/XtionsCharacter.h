@@ -10,12 +10,12 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDodgesUpdatedSignature, int32, Total);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDashesUpdated, int32, Total);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterHitSignature);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnOverlappingBox, bool, bIsOverlapping);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnOverlappingBox, bool, bIsOverlapping, bool, bReadyToRepair);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLevelSkipRequested);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLevelSelectOpenedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnKeyBindingsNeedRebuilt);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHoveredInteractable, FString, InteractableName);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnPickedUpInteractable, int32, ID, int32, TotalCount, bool, bHighlight);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnPickedUpInteractable, int32, ID, int32, CurrentCount, int32, TotalCount, bool, bHighlight);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnNotReadyToRepair);
 
 class USpringArmComponent;

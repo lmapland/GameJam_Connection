@@ -67,9 +67,9 @@ void UOverlayWidgetController::DisplayLevelCompleteText(bool bLevelSuccessfullyC
 	}
 }
 
-void UOverlayWidgetController::DisplayInterationText(bool bOverlapping)
+void UOverlayWidgetController::DisplayInterationText(bool bOverlapping, bool bReadyToRepair)
 {
-	OnShowInteractionText.Broadcast(bOverlapping);
+	OnShowInteractionText.Broadcast(bOverlapping, bReadyToRepair);
 }
 
 void UOverlayWidgetController::DisplayDodgesText(int32 Amount)
@@ -93,9 +93,9 @@ void UOverlayWidgetController::DisplayHoverText(FString HoverText)
 	OnUpdateHoverText.Broadcast(HoverText);
 }
 
-void UOverlayWidgetController::UpdateInteractableInfo(int32 InID, int32 InCount, bool InShowEnabled)
+void UOverlayWidgetController::UpdateInteractableInfo(int32 InID, int32 CurrentCount, int32 TotalCount, bool InShowEnabled)
 {
-	OnUpdateInteractableInfo.Broadcast(InID, InCount, InShowEnabled);
+	OnUpdateInteractableInfo.Broadcast(InID, CurrentCount, TotalCount, InShowEnabled);
 }
 
 void UOverlayWidgetController::DisplayRepairNotReadyText()

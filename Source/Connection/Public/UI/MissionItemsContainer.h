@@ -19,16 +19,16 @@ class CONNECTION_API UMissionItemsContainer : public UUserWidget
 public:
 	void Setup(const TArray<int32>& ItemIDs, const TArray<int32>& ItemCounts);
 
-	void UpdateItem(int32 ItemID, int32 Count, bool ShowEnabled);
+	void UpdateItem(int32 ItemID, int32 CurrentCount, int32 TotalCount, bool ShowEnabled);
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UVerticalBox* ItemsBox;
 	
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
-	void AddChild(int32 ItemID, int32 Count);
+	void AddChild(int32 ItemID, int32 CurrentCount, int32 TotalCount);
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void UpdateChild(int32 ItemID, int32 Count, bool ShowEnabled);
+	void UpdateChild(int32 ItemID, int32 CurrentCount, int32 TotalCount, bool ShowEnabled);
 
 };

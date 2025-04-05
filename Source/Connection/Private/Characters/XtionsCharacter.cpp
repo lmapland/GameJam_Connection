@@ -137,7 +137,7 @@ void AXtionsCharacter::Interact(const FInputActionValue& value)
 					CurrentObjectCounts[Index] += 1;
 					//UE_LOG(LogTemp, Warning, TEXT("Interact(): Picked up 1 additional ObjectID %i. Total: %i"), Interactable->GetInteractableID(), CurrentObjectCounts[Index]);
 					bool bReadyForHighlight = CurrentObjectCounts[Index] >= ObjectCounts[Index] ? true : false;
-					OnPickedUpInteractable.Broadcast(Interactable->GetInteractableID(), CurrentObjectCounts[Index], bReadyForHighlight);
+					OnPickedUpInteractable.Broadcast(Interactable->GetInteractableID(), CurrentObjectCounts[Index], ObjectCounts[Index], bReadyForHighlight);
 				}
 
 				Interactable->Interact();
@@ -151,14 +151,14 @@ void AXtionsCharacter::Interact(const FInputActionValue& value)
 
 	if (ReadyToRepair())
 	{
-		OnOverlappingBox.Broadcast(false);
+		OnOverlappingBox.Broadcast(false, false);
 		OverlappedBox->Use();
 
 		for (int i = 0; i < RequiredObjects.Num(); i++)
 		{
 			CurrentObjectCounts[i] -= ObjectCounts[i];
 			bool bReadyForHighlight = CurrentObjectCounts[i] >= ObjectCounts[i] ? true : false;
-			OnPickedUpInteractable.Broadcast(RequiredObjects[i], CurrentObjectCounts[i], bReadyForHighlight);
+			OnPickedUpInteractable.Broadcast(RequiredObjects[i], CurrentObjectCounts[i], ObjectCounts[i], bReadyForHighlight);
 		}
 	}
 	else
@@ -424,8 +424,21 @@ void AXtionsCharacter::TransportCharacter(FLevelInfo& LevelInfo)
 
 void AXtionsCharacter::SetOverlappedConnectionBox(AConnectionBox* InOverlappedBox)
 {
-	if (InOverlappedBox) OnOverlappingBox.Broadcast(true);
-	else OnOverlappingBox.Broadcast(false);
+	if (InOverlappedBox)
+	{
+		if (ReadyToRepair())
+		{
+			OnOverlappingBox.Broadcast(true, true);
+		}
+		else
+		{
+			OnOverlappingBox.Broadcast(true, false);
+		}
+	}
+	else
+	{
+		OnOverlappingBox.Broadcast(false, false);
+	}
 
 	OverlappedBox = InOverlappedBox;
 }

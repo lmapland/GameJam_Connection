@@ -15,11 +15,11 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnShowCharacterTransportTextSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnShowLevelCompleteTextSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnShowLevelFailedTextSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnShowConnectionMadeTextSignature);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnShowInteractionText, bool, isOverlapping);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnShowInteractionText, bool, isOverlapping, bool, bReadyToRepair);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnShowNewLevelInfo, int32, InTotalConnectionBoxes, int32, InMaxHits, TArray<int32>, InRequiredObjects, TArray<int32>, InObjectCounts);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnRebuildKeyBindings);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateHoverText, FString, HoverText);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnUpdateInteractableInfo, int32, InID, int32, InCount, bool, InshowEnabled);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnUpdateInteractableInfo, int32, InID, int32, CurrentCount, int32, TotalCount, bool, InshowEnabled);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDisplayRepairNotReadyText);
 
 class AXtionsCharacter;
@@ -99,7 +99,7 @@ private:
 	void DisplayLevelCompleteText(bool bLevelSuccessfullyCompleted);
 
 	UFUNCTION()
-	void DisplayInterationText(bool bOverlapping);
+	void DisplayInterationText(bool bOverlapping, bool bReadyToRepair);
 
 	UFUNCTION()
 	void DisplayDodgesText(int32 Amount);
@@ -114,7 +114,7 @@ private:
 	void DisplayHoverText(FString HoverText);
 
 	UFUNCTION()
-	void UpdateInteractableInfo(int32 InID, int32 InCount, bool InShowEnabled);
+	void UpdateInteractableInfo(int32 InID, int32 CurrentCount, int32 TotalCount, bool InShowEnabled);
 
 	UFUNCTION()
 	void DisplayRepairNotReadyText();

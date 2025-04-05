@@ -106,12 +106,28 @@ void UOverlayWidget::UpdateHits()
 	SetHits();
 }
 
-void UOverlayWidget::DisplayInteractionText(bool bIsVisible)
+void UOverlayWidget::DisplayInteractionText(bool bIsVisible, bool bReadyToRepair)
 {
 	if (InteractionHorizBox)
 	{
-		if (bIsVisible)	InteractionHorizBox->SetVisibility(ESlateVisibility::Visible);
-		else InteractionHorizBox->SetVisibility(ESlateVisibility::Hidden);
+		if (bIsVisible)
+		{
+			if (bReadyToRepair)
+			{
+				//UE_LOG(LogTemp, Warning, TEXT("UOverlayWidget::DisplayInteractionText(): bReadyToRepair is true"));
+				InteractionText->SetText(FText::FromString("Repair Defenses"));
+			}
+			else
+			{
+				//UE_LOG(LogTemp, Warning, TEXT("UOverlayWidget::DisplayInteractionText(): bReadyToRepair is false"));
+				InteractionText->SetText(FText::FromString("Not enough items to repair!"));
+			}
+			InteractionHorizBox->SetVisibility(ESlateVisibility::Visible);
+		}
+		else
+		{
+			InteractionHorizBox->SetVisibility(ESlateVisibility::Hidden);
+		}
 	}
 }
 
@@ -210,10 +226,10 @@ void UOverlayWidget::DisplayHoverText(FString HoverText)
 	//UE_LOG(LogTemp, Warning, TEXT("UOverlayWidget::DisplayHoverText(): Displayname: %s"), *HoverText);
 }
 
-void UOverlayWidget::UpdateInteractableInfo(int32 InID, int32 InCount, bool InShowEnabled)
+void UOverlayWidget::UpdateInteractableInfo(int32 InID, int32 CurrentCount, int32 TotalCount, bool InShowEnabled)
 {
-	UE_LOG(LogTemp, Warning, TEXT("UOverlayWidget::UpdateInteractableInfo(): ID: %i, Count: %i"), InID, InCount);
-	MissionItemsContainer->UpdateItem(InID, InCount, InShowEnabled);
+	//UE_LOG(LogTemp, Warning, TEXT("UOverlayWidget::UpdateInteractableInfo(): ID: %i, Count: %i"), InID, InCount);
+	MissionItemsContainer->UpdateItem(InID, CurrentCount, TotalCount, InShowEnabled);
 }
 
 void UOverlayWidget::DisplayRepairNotReadyText()

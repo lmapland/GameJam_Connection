@@ -46,7 +46,7 @@ public:
 	//void DisplayWinText();
 
 	UFUNCTION()
-	void DisplayInteractionText(bool bIsVisible);
+	void DisplayInteractionText(bool bIsVisible, bool bReadyToRepair);
 
 	UFUNCTION()
 	void DisplayDodgesText(int32 Dodges);
@@ -81,8 +81,8 @@ public:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UTextBlock* Section3Text;
 
-	//UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	//UTextBlock* InteractionText;
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UTextBlock* InteractionText;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UHorizontalBox* InteractionHorizBox;
@@ -132,7 +132,7 @@ private:
 	void DisplayHoverText(FString HoverText);
 
 	UFUNCTION()
-	void UpdateInteractableInfo(int32 InID, int32 InCount, bool InShowEnabled);
+	void UpdateInteractableInfo(int32 InID, int32 CurrentCount, int32 TotalCount, bool InShowEnabled);
 
 	UFUNCTION()
 	void DisplayRepairNotReadyText();

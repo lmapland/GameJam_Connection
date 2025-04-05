@@ -10,11 +10,11 @@ void UMissionItemsContainer::Setup(const TArray<int32>& ItemIDs, const TArray<in
 
 	for (int i = 0; i < ItemIDs.Num(); i++)
 	{
-		AddChild(ItemIDs[i], 0);
+		AddChild(ItemIDs[i], 0, ItemCounts[i]);
 	}
 }
 
-void UMissionItemsContainer::UpdateItem(int32 ItemID, int32 Count, bool ShowEnabled)
+void UMissionItemsContainer::UpdateItem(int32 ItemID, int32 CurrentCount, int32 TotalCount, bool ShowEnabled)
 {
-	UpdateChild(ItemID, Count, ShowEnabled);
+	UpdateChild(ItemID, CurrentCount, TotalCount, ShowEnabled);
 }
