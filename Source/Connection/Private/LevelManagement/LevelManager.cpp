@@ -92,6 +92,7 @@ void ULevelManager::Setup(TArray<int32> InLevelCompletions, TArray<float> InLeve
 	if (ActorOwner) Player = Cast<AXtionsCharacter>(ActorOwner);
 	Player->OnLevelSkipRequested.AddUniqueDynamic(this, &ULevelManager::SkipCurrentLevel);
 	Player->OnLevelSelectOpened.AddUniqueDynamic(this, &ULevelManager::TearDownLevel);
+	Player->OnCharacterHit.AddUniqueDynamic(this, &ULevelManager::PlayerHit);
 
 	// Load default LevelTimes, LevelSelections values
 	for (int i = 0; i < Levels.Num(); i++)
@@ -133,6 +134,7 @@ void ULevelManager::CharacterInPlay(int32 InLevel)
 	if (bCurrentLevelStarted || InLevel != CurrentLevel) return;
 	bCurrentLevelStarted = true;
 	LastLevelPlayed = CurrentLevel;
+	CurrentHits = 0;
 
 	TArray<AActor*> AllActors;
 	FString LevelString("");
@@ -151,7 +153,7 @@ void ULevelManager::CharacterInPlay(int32 InLevel)
 
 void ULevelManager::ConnectionComplete(int32 LevelOfBox)
 {
-	UE_LOG(LogTemp, Warning, TEXT("ConnectionComplete: %i, Current Level: %i, Current Progress: %i, # Boxes this level: %i"), LevelOfBox, CurrentLevel, Progress, Levels[CurrentLevel - 1].Connections);
+	//UE_LOG(LogTemp, Warning, TEXT("ConnectionComplete: %i, Current Level: %i, Current Progress: %i, # Boxes this level: %i"), LevelOfBox, CurrentLevel, Progress, Levels[CurrentLevel - 1].Connections);
 	if (LevelOfBox != CurrentLevel) return;
 
 	OnConnectionMade.Broadcast();
@@ -176,7 +178,7 @@ void ULevelManager::ConnectionComplete(int32 LevelOfBox)
 			{
 				LevelTimes[CurrentLevel - 1] = LevelTime;
 			}
-			UE_LOG(LogTemp, Warning, TEXT("ConnectionComplete(): %f - %f = %f seconds"), GetWorld()->GetTimeSeconds(), InitialTime, LevelTime);
+			//UE_LOG(LogTemp, Warning, TEXT("ConnectionComplete(): %f - %f = %f seconds"), GetWorld()->GetTimeSeconds(), InitialTime, LevelTime);
 			OnLevelStatsUpdated.Broadcast(CurrentLevel, LevelCompletions[CurrentLevel - 1], LevelTimes[CurrentLevel - 1]);
 
 			CurrentLevel++;
@@ -229,9 +231,24 @@ void ULevelManager::TearDownLevel()
 	}
 }
 
+void ULevelManager::PlayerHit()
+{
+	CurrentHits++;
+	//UE_LOG(LogTemp, Warning, TEXT("ULevelManager::PlayerHit(): CurrentHits: %i"), CurrentHits);
+
+	/* End the level if the player has been hit too many times */
+	if (CurrentHits > Levels[CurrentLevel - 1].MaxHits)
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("ULevelManager::PlayerHit(): Player has been hit too many times"));
+		// broadcast that the player should be pulled from the level
+		OnPlayerHitTooManyTimes.Broadcast();
+		Player->Die();
+	}
+}
+
 void ULevelManager::StartLevel(int32 LevelToStart)
 {
-	UE_LOG(LogTemp, Warning, TEXT("ULevelManager::StartLevel(): Getting all actors with tag (level) %i"), LevelToStart);
+	//UE_LOG(LogTemp, Warning, TEXT("ULevelManager::StartLevel(): Getting all actors with tag (level) %i"), LevelToStart);
 	if (LevelToStart > Levels.Num() || LevelToStart < 0)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Invalid level passed in. Level %i is not in array Levels.Num() (%i)"), LevelToStart, Levels.Num());
@@ -275,4 +292,10 @@ void ULevelManager::TransportPlayer(int32 ToLevel)
 	OnNewLevel.Broadcast(Levels[ToLevel - 1].Connections, Levels[ToLevel - 1].MaxHits, Levels[ToLevel - 1].RequiredObjects, Levels[ToLevel - 1].ObjectCounts);
 	Player->TransportCharacter(Levels[ToLevel - 1]);
 	bCurrentLevelStarted = false;
+}
+
+void ULevelManager::EndLevelPrematurely()
+{
+	OnCharacterTransport.Broadcast();
+	RestartLevel();
 }

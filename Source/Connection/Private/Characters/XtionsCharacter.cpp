@@ -98,6 +98,8 @@ void AXtionsCharacter::BeginPlay()
 
 void AXtionsCharacter::Move(const FInputActionValue& Value)
 {
+	if (!bAlive) return;
+
 	const FVector2D MovementVector = Value.Get<FVector2D>();
 
 	const FRotator Rotation = Controller->GetControlRotation();
@@ -123,6 +125,8 @@ void AXtionsCharacter::Look(const FInputActionValue& Value)
 
 void AXtionsCharacter::Interact(const FInputActionValue& value)
 {
+	if (!bAlive) return;
+
 	/* Check for item pickup first */
 	if (OverlappingActors.Num() > 0)
 	{
@@ -323,6 +327,11 @@ void AXtionsCharacter::OpenLevelSelect()
 	GameInstance->ShowLevelSelectionScreen();
 }
 
+void AXtionsCharacter::Die()
+{
+	bAlive = false;
+}
+
 void AXtionsCharacter::OnItemSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("AXtionsCharacter::OnItemSphereOverlap()"));
@@ -379,7 +388,7 @@ void AXtionsCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 void AXtionsCharacter::Damage(int32 Amount)
 {
-	if (bIsDodging) return;
+	if (!bAlive || bIsDodging) return;
 
 	Hits++;
 	OnCharacterHit.Broadcast();
@@ -406,7 +415,7 @@ void AXtionsCharacter::TransportCharacter(FLevelInfo& LevelInfo)
 	{
 		for (int32 Item : LevelInfo.RequiredObjects)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("AXtionsCharacter::TransportCharacter(): Required Object: %i"), Item);
+			//UE_LOG(LogTemp, Warning, TEXT("AXtionsCharacter::TransportCharacter(): Required Object: %i"), Item);
 			RequiredObjects.Add(Item);
 		}
 	}
@@ -420,6 +429,8 @@ void AXtionsCharacter::TransportCharacter(FLevelInfo& LevelInfo)
 			CurrentObjectCounts.Add(0);
 		}
 	}
+
+	bAlive = true;
 }
 
 void AXtionsCharacter::SetOverlappedConnectionBox(AConnectionBox* InOverlappedBox)

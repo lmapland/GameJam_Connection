@@ -21,6 +21,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnRebuildKeyBindings);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateHoverText, FString, HoverText);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnUpdateInteractableInfo, int32, InID, int32, CurrentCount, int32, TotalCount, bool, InshowEnabled);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDisplayRepairNotReadyText);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLevelIsOver);
 
 class AXtionsCharacter;
 class ULevelManager;
@@ -36,6 +37,9 @@ public:
 	void SetWidgetControllerParams(AXtionsCharacter* InCharacter, ULevelManager* InLevelManager);
 	void BindCallbacksToDependencies();
 	void BroadcastInitialValues();
+
+	/* Called by the Overlay Widget to indicate the player has acknowledged they lost */
+	void EndLevel();
 
 	UPROPERTY()
 	FOnShowTutorialSignature OnShowTutorial;
@@ -82,6 +86,9 @@ public:
 	UPROPERTY()
 	FOnDisplayRepairNotReadyText OnDisplayRepairNotReadyText;
 
+	UPROPERTY()
+	FOnLevelIsOver OnLevelIsOver;
+
 private:
 	UFUNCTION()
 	void DisplayTutorialText();
@@ -118,6 +125,9 @@ private:
 
 	UFUNCTION()
 	void DisplayRepairNotReadyText();
+
+	UFUNCTION()
+	void DisplayEndLevel();
 
 	UPROPERTY()
 	ULevelManager* LevelManager;

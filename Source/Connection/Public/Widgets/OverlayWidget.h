@@ -66,6 +66,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void HitsUnderMaximum();
 
+	UFUNCTION(BlueprintCallable)
+	void EndLevel();
+
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UOverlay* Section1;
 	
@@ -117,6 +120,9 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void RebuildCustomInputMappings();
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void DisplayMissionFailedScreen(UOverlayWidget* InOverlayWidget);
+
 private:
 	void HideSection1Text();
 	void HideSection2Text();
@@ -136,6 +142,9 @@ private:
 
 	UFUNCTION()
 	void DisplayRepairNotReadyText();
+
+	UFUNCTION()
+	void LaunchMissionFailedScreen();
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	UOverlayWidgetController* WidgetController;

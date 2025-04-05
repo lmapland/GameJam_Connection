@@ -14,6 +14,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnConnectionMade);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnNewLevel, int32, InTotalConnectionBoxes, int32, InMaxHits, TArray<int32>, InRequiredObjects, TArray<int32>, InObjectCounts);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnLevelStatsUpdated, int32, CurrentLevel, int32, NumCompletions, float, CompletionTime);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStartLevel, int32, InCurrentLevel);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerHitTooManyTimes);
 
 class AStartZone;
 class AXtionsCharacter;
@@ -24,6 +25,7 @@ class AConnectionBox;
  * For each level, create a StartZone and give it a Level equal to its level AND A TAG equal to its level
  * For each Enemy, give it a tag indicating its level (it has a Level variable,  not setting it is not required)
  * For each Connection Box, give it a Level equal to its level AND A TAG equal to its level
+ * For each Item, give it a Tag equal to its level
  * Make sure the initializers are correct in this .cpp file:
  *  the number of CBs required to complete each level;
  *  the location the character should be transported to (should be within the StartZone)
@@ -53,6 +55,8 @@ public:
 
 	void TransportPlayer(int32 ToLevel);
 
+	void EndLevelPrematurely();
+
 	UPROPERTY()
 	FOnLaunchTutorial OnLaunchTutorial;
 
@@ -74,6 +78,9 @@ public:
 	UPROPERTY()
 	FOnStartLevel OnStartLevel;
 
+	UPROPERTY()
+	FOnPlayerHitTooManyTimes OnPlayerHitTooManyTimes;
+
 private:
 	void EndTheGame();
 	void TransportPlayer();
@@ -81,6 +88,9 @@ private:
 
 	UFUNCTION()
 	void TearDownLevel();
+
+	UFUNCTION()
+	void PlayerHit();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes", meta = (AllowPrivateAccess = "true"))
 	int32 CurrentLevel = 1;
@@ -95,6 +105,7 @@ private:
 	TArray<AConnectionBox*> AllConnectionBoxes;
 
 	int32 Progress = 0; // if the current level has 2 ConnectionBoxes, then this can either be 0 or 1
+	int32 CurrentHits = 0;
 
 	TObjectPtr<AXtionsCharacter> Player;
 

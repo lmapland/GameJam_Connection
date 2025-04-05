@@ -46,6 +46,7 @@ public:
 	virtual void Jump() override;
 	virtual void Landed(const FHitResult& Hit) override;
 	void OpenLevelSelect();
+	void Die();
 
 	UFUNCTION()
 	virtual void OnItemSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -185,6 +186,7 @@ private:
 	FVector TransportLoc;
 	FRotator TransportRot;
 
+	bool bAlive = true;
 	bool bIsDodging = false;
 	bool bIsJumping = false;
 	bool bIsDashing = false;
@@ -202,6 +204,7 @@ private:
 	TArray<AActor*> OverlappingActors;
 
 public:
+	FORCEINLINE bool IsAlive() const { return bAlive; }
 	FORCEINLINE int32 GetStartDodges() const { return NumDodges; }
 	FORCEINLINE int32 GetStartDashes() const { return NumDashes; }
 	FORCEINLINE int32 GetHits() const { return Hits; }

@@ -38,6 +38,7 @@ void UOverlayWidget::SetController(UOverlayWidgetController* InWidgetController)
 	WidgetController->OnUpdateHoverText.AddDynamic(this, &UOverlayWidget::DisplayHoverText);
 	WidgetController->OnUpdateInteractableInfo.AddDynamic(this, &UOverlayWidget::UpdateInteractableInfo);
 	WidgetController->OnDisplayRepairNotReadyText.AddDynamic(this, &UOverlayWidget::DisplayRepairNotReadyText);
+	WidgetController->OnLevelIsOver.AddDynamic(this, &UOverlayWidget::LaunchMissionFailedScreen);
 }
 
 void UOverlayWidget::DisplayConnectionText()
@@ -238,6 +239,12 @@ void UOverlayWidget::DisplayRepairNotReadyText()
 	UE_LOG(LogTemp, Warning, TEXT("UOverlayWidget::DisplayRepairNotReadyText()"));
 }
 
+void UOverlayWidget::LaunchMissionFailedScreen()
+{
+	//UE_LOG(LogTemp, Warning, TEXT("UOverlayWidget::DisplayMissionFailedScreen()"));
+	DisplayMissionFailedScreen(this);
+}
+
 void UOverlayWidget::SetHits()
 {
 	if (HitsText)
@@ -249,6 +256,11 @@ void UOverlayWidget::SetHits()
 		FString HitsString = FString::Printf(TEXT("%i/%i"), Hits, MaxHits);
 		HitsText->SetText(FText::FromString(HitsString));
 	}
+}
+
+void UOverlayWidget::EndLevel()
+{
+	WidgetController->EndLevel();
 }
 
 void UOverlayWidget::HideSection1Text()

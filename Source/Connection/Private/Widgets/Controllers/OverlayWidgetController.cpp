@@ -18,6 +18,7 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 	LevelManager->OnConnectionMade.AddDynamic(this, &UOverlayWidgetController::DisplayConnectionText);
 	LevelManager->OnLevelComplete.AddDynamic(this, &UOverlayWidgetController::DisplayLevelCompleteText);
 	LevelManager->OnNewLevel.AddDynamic(this, &UOverlayWidgetController::UpdateNewLevelInfo);
+	LevelManager->OnPlayerHitTooManyTimes.AddDynamic(this, &UOverlayWidgetController::DisplayEndLevel);
 	Character->OnCharacterHit.AddDynamic(this, &UOverlayWidgetController::DisplayHitsText);
 	Character->OnOverlappingBox.AddDynamic(this, &UOverlayWidgetController::DisplayInterationText);
 	Character->OnDodgesUpdated.AddDynamic(this, &UOverlayWidgetController::DisplayDodgesText);
@@ -34,9 +35,14 @@ void UOverlayWidgetController::BroadcastInitialValues()
 	OnInitializeDodges.Broadcast(Character->GetStartDodges());
 }
 
+void UOverlayWidgetController::EndLevel()
+{
+	LevelManager->EndLevelPrematurely();
+}
+
 void UOverlayWidgetController::DisplayTutorialText()
 {
-	UE_LOG(LogTemp, Warning, TEXT("UOverlayWidgetController::DisplayTutorialText(): OnShowTutorial.Broadcast()"));
+	//UE_LOG(LogTemp, Warning, TEXT("UOverlayWidgetController::DisplayTutorialText(): OnShowTutorial.Broadcast()"));
 	OnShowTutorial.Broadcast();
 }
 
@@ -79,7 +85,7 @@ void UOverlayWidgetController::DisplayDodgesText(int32 Amount)
 
 void UOverlayWidgetController::UpdateNewLevelInfo(int32 InTotalConnectionBoxes, int32 InMaxHits, TArray<int32> InRequiredObjects, TArray<int32> InObjectCounts)
 {
-	UE_LOG(LogTemp, Warning, TEXT("UOverlayWidgetController::UpdateNewLevelInfo(): InTotalConnectionBoxes: %i, InMaxHits: %i"), InTotalConnectionBoxes, InMaxHits);
+	//UE_LOG(LogTemp, Warning, TEXT("UOverlayWidgetController::UpdateNewLevelInfo(): InTotalConnectionBoxes: %i, InMaxHits: %i"), InTotalConnectionBoxes, InMaxHits);
 	OnShowNewLevelInfo.Broadcast(InTotalConnectionBoxes, InMaxHits, InRequiredObjects, InObjectCounts);
 }
 
@@ -101,4 +107,9 @@ void UOverlayWidgetController::UpdateInteractableInfo(int32 InID, int32 CurrentC
 void UOverlayWidgetController::DisplayRepairNotReadyText()
 {
 	OnDisplayRepairNotReadyText.Broadcast();
+}
+
+void UOverlayWidgetController::DisplayEndLevel()
+{
+	OnLevelIsOver.Broadcast();
 }
