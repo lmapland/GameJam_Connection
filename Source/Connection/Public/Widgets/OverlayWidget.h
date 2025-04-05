@@ -123,6 +123,9 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void DisplayMissionFailedScreen(UOverlayWidget* InOverlayWidget);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void DisplayRepairNotReadyText();
+
 private:
 	void HideSection1Text();
 	void HideSection2Text();
@@ -139,9 +142,6 @@ private:
 
 	UFUNCTION()
 	void UpdateInteractableInfo(int32 InID, int32 CurrentCount, int32 TotalCount, bool InShowEnabled);
-
-	UFUNCTION()
-	void DisplayRepairNotReadyText();
 
 	UFUNCTION()
 	void LaunchMissionFailedScreen();

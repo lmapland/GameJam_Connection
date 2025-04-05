@@ -233,12 +233,6 @@ void UOverlayWidget::UpdateInteractableInfo(int32 InID, int32 CurrentCount, int3
 	MissionItemsContainer->UpdateItem(InID, CurrentCount, TotalCount, InShowEnabled);
 }
 
-void UOverlayWidget::DisplayRepairNotReadyText()
-{
-	// Choose which place the text will be displayed
-	UE_LOG(LogTemp, Warning, TEXT("UOverlayWidget::DisplayRepairNotReadyText()"));
-}
-
 void UOverlayWidget::LaunchMissionFailedScreen()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("UOverlayWidget::DisplayMissionFailedScreen()"));
