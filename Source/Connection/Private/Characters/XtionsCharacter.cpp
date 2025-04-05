@@ -142,6 +142,11 @@ void AXtionsCharacter::Interact(const FInputActionValue& value)
 					//UE_LOG(LogTemp, Warning, TEXT("Interact(): Picked up 1 additional ObjectID %i. Total: %i"), Interactable->GetInteractableID(), CurrentObjectCounts[Index]);
 					bool bReadyForHighlight = CurrentObjectCounts[Index] >= ObjectCounts[Index] ? true : false;
 					OnPickedUpInteractable.Broadcast(Interactable->GetInteractableID(), CurrentObjectCounts[Index], ObjectCounts[Index], bReadyForHighlight);
+
+					if (ReadyToRepair())
+					{
+						OnUpdateIntraMission.Broadcast(1, false);
+					}
 				}
 
 				Interactable->Interact();
@@ -163,6 +168,15 @@ void AXtionsCharacter::Interact(const FInputActionValue& value)
 			CurrentObjectCounts[i] -= ObjectCounts[i];
 			bool bReadyForHighlight = CurrentObjectCounts[i] >= ObjectCounts[i] ? true : false;
 			OnPickedUpInteractable.Broadcast(RequiredObjects[i], CurrentObjectCounts[i], ObjectCounts[i], bReadyForHighlight);
+		}
+
+		if (ReadyToRepair())
+		{
+			OnUpdateIntraMission.Broadcast(1, false);
+		}
+		else
+		{
+			OnUpdateIntraMission.Broadcast(0, false);
 		}
 	}
 	else
@@ -401,7 +415,6 @@ void AXtionsCharacter::TransportCharacter(FLevelInfo& LevelInfo)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Transporting Character"));
 	GameInstance->SetShowOverlay(true);
-	//SetActorTransform(FTransform(Location, Rotation, FVector(1.f)));
 	SetActorLocation(LevelInfo.Location);
 	PlayerController->SetControlRotation(LevelInfo.Rotation);
 	SetActorRotation(LevelInfo.Rotation);
@@ -415,7 +428,6 @@ void AXtionsCharacter::TransportCharacter(FLevelInfo& LevelInfo)
 	{
 		for (int32 Item : LevelInfo.RequiredObjects)
 		{
-			//UE_LOG(LogTemp, Warning, TEXT("AXtionsCharacter::TransportCharacter(): Required Object: %i"), Item);
 			RequiredObjects.Add(Item);
 		}
 	}
@@ -430,6 +442,7 @@ void AXtionsCharacter::TransportCharacter(FLevelInfo& LevelInfo)
 		}
 	}
 
+	OnUpdateIntraMission.Broadcast(0, true);
 	bAlive = true;
 }
 

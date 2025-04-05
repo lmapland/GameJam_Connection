@@ -26,6 +26,7 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 	Character->OnHoveredInteractable.AddDynamic(this, &UOverlayWidgetController::DisplayHoverText);
 	Character->OnPickedUpInteractable.AddDynamic(this, &UOverlayWidgetController::UpdateInteractableInfo);
 	Character->OnNotReadyToRepair.AddDynamic(this, &UOverlayWidgetController::DisplayRepairNotReadyText);
+	Character->OnUpdateIntraMission.AddDynamic(this, &UOverlayWidgetController::UpdateIntraMissionText);
 
 }
 
@@ -112,4 +113,9 @@ void UOverlayWidgetController::DisplayRepairNotReadyText()
 void UOverlayWidgetController::DisplayEndLevel()
 {
 	OnLevelIsOver.Broadcast();
+}
+
+void UOverlayWidgetController::UpdateIntraMissionText(int32 InMissionState, bool bInNewLevel)
+{
+	OnUpdateIntraMissionText.Broadcast(InMissionState, bInNewLevel);
 }

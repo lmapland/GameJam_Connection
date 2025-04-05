@@ -103,6 +103,9 @@ public:
 	UTextBlock* HoverName;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UTextBlock* IntraMissionText;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UMissionItemsContainer* MissionItemsContainer;
 
 
@@ -146,6 +149,9 @@ private:
 	UFUNCTION()
 	void LaunchMissionFailedScreen();
 
+	UFUNCTION()
+	void UpdateIntraMissionText(int32 InMissionState, bool bInNewLevel);
+
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	UOverlayWidgetController* WidgetController;
 
@@ -165,4 +171,5 @@ private:
 	int32 TotalBoxes = 1;
 
 	int32 MaxHits = 0;
+	bool bNoUpdateMissionText = false;
 };

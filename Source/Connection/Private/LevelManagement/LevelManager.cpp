@@ -229,6 +229,7 @@ void ULevelManager::TearDownLevel()
 			ActorCanTurnOn->Stop();
 		}
 	}
+	Progress = 0;
 }
 
 void ULevelManager::PlayerHit()

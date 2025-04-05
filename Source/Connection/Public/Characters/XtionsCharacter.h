@@ -17,6 +17,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnKeyBindingsNeedRebuilt);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHoveredInteractable, FString, InteractableName);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnPickedUpInteractable, int32, ID, int32, CurrentCount, int32, TotalCount, bool, bHighlight);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnNotReadyToRepair);
+/* 0 = still needs items, 1 = ready to repair, 2 = mission complete (no mission text) */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUpdateIntraMission, int32, InMissionState, bool, bNewLevel);
 
 class USpringArmComponent;
 class UCameraComponent;
@@ -89,6 +91,9 @@ public:
 
 	UPROPERTY()
 	FOnNotReadyToRepair OnNotReadyToRepair;
+
+	UPROPERTY()
+	FOnUpdateIntraMission OnUpdateIntraMission;
 	
 	UPROPERTY(EditAnywhere, Category = "Character|Attributes")
 	USoundBase* OnDamageSound;

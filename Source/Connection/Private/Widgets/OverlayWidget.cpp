@@ -39,6 +39,7 @@ void UOverlayWidget::SetController(UOverlayWidgetController* InWidgetController)
 	WidgetController->OnUpdateInteractableInfo.AddDynamic(this, &UOverlayWidget::UpdateInteractableInfo);
 	WidgetController->OnDisplayRepairNotReadyText.AddDynamic(this, &UOverlayWidget::DisplayRepairNotReadyText);
 	WidgetController->OnLevelIsOver.AddDynamic(this, &UOverlayWidget::LaunchMissionFailedScreen);
+	WidgetController->OnUpdateIntraMissionText.AddDynamic(this, &UOverlayWidget::UpdateIntraMissionText);
 }
 
 void UOverlayWidget::DisplayConnectionText()
@@ -66,6 +67,8 @@ void UOverlayWidget::DisplayLevelCompleteText()
 		Section3Text->SetText(FText::FromString("Level Complete!"));
 		Section3->SetVisibility(ESlateVisibility::Visible);
 		GetWorld()->GetTimerManager().SetTimer(Section3Handle, this, &UOverlayWidget::HideSection3Text, LevelCompleteTime);
+		UpdateIntraMissionText(2, false);
+		bNoUpdateMissionText = true;
 	}
 }
 
@@ -237,6 +240,31 @@ void UOverlayWidget::LaunchMissionFailedScreen()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("UOverlayWidget::DisplayMissionFailedScreen()"));
 	DisplayMissionFailedScreen(this);
+}
+
+void UOverlayWidget::UpdateIntraMissionText(int32 InMissionState, bool bInNewLevel)
+{
+	if (bNoUpdateMissionText && !bInNewLevel)
+	{
+		return;
+	}
+	else
+	{
+		bNoUpdateMissionText = false;
+	}
+
+	switch (InMissionState)
+	{
+	case 0:
+		IntraMissionText->SetText(FText::FromString("Gather required items to repair the fence"));
+		break;
+	case 1:
+		IntraMissionText->SetText(FText::FromString("Repair the fence"));
+		break;
+	case 2:
+		IntraMissionText->SetText(FText::FromString(""));
+		break;
+	}
 }
 
 void UOverlayWidget::SetHits()

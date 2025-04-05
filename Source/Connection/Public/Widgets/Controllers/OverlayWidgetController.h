@@ -22,6 +22,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateHoverText, FString, HoverTe
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnUpdateInteractableInfo, int32, InID, int32, CurrentCount, int32, TotalCount, bool, InshowEnabled);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDisplayRepairNotReadyText);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLevelIsOver);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUpdateIntraMissionText, int32, InMissionState, bool, bNewLevel);
 
 class AXtionsCharacter;
 class ULevelManager;
@@ -89,6 +90,9 @@ public:
 	UPROPERTY()
 	FOnLevelIsOver OnLevelIsOver;
 
+	UPROPERTY()
+	FOnUpdateIntraMissionText OnUpdateIntraMissionText;
+
 private:
 	UFUNCTION()
 	void DisplayTutorialText();
@@ -128,6 +132,9 @@ private:
 
 	UFUNCTION()
 	void DisplayEndLevel();
+
+	UFUNCTION()
+	void UpdateIntraMissionText(int32 InMissionState, bool bInNewLevel);
 
 	UPROPERTY()
 	ULevelManager* LevelManager;
