@@ -188,7 +188,7 @@ void AXtionsCharacter::Interact(const FInputActionValue& value)
 
 void AXtionsCharacter::Dodge(const FInputActionValue& value)
 {
-	if (bIsDodging || bIsDashing) return;
+	if (bIsDodging) return;
 	if (NumDodges == 0)
 	{
 		OnDodgesUpdated.Broadcast(NumDodges);
@@ -228,12 +228,7 @@ void AXtionsCharacter::Dash()
 
 void AXtionsCharacter::Jump()
 {
-	//if (bIsJumping || NumJumps == 0) return;
-
 	bIsJumping = true;
-	//NumJumps -= 1;
-	//OnJumpsUpdated.Broadcast(NumJumps);
-
 	Super::Jump();
 }
 
@@ -320,7 +315,7 @@ bool AXtionsCharacter::PerformLineTrace(FHitResult& HitResult)
 
 bool AXtionsCharacter::ReadyToRepair()
 {
-	UE_LOG(LogTemp, Warning, TEXT("AXtionsCharacter::ReadyToRepair()"));
+	//UE_LOG(LogTemp, Warning, TEXT("AXtionsCharacter::ReadyToRepair()"));
 	bool bReady = true;
 	for (int i = 0; i < ObjectCounts.Num(); i++)
 	{
@@ -375,12 +370,16 @@ void AXtionsCharacter::OnItemSphereEndOverlap(UPrimitiveComponent* OverlappedCom
 void AXtionsCharacter::DodgeFinish()
 {
 	bIsDodging = false;
+	// Can interrupt a dash with a dodge, so let's make sure to set the state appropriately
+	bIsDashing = false;
 }
 
 void AXtionsCharacter::DashFinish()
 {
 	bIsDashing = false;
-	GetCharacterMovement()->GravityScale = 1.f;
+	// Can interrupt a dodge with a dash, so let's make sure to set the state appropriately
+	bIsDodging = false;
+	GetCharacterMovement()->GravityScale = 4.f;
 }
 
 void AXtionsCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
