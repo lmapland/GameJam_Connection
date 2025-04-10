@@ -78,7 +78,11 @@ DerivedDataCache/*
 Content/*
 
 # Except for:
-!Content/Assets/Animations/Roxanne/
+!Content/Assets/
+Content/Assets/*.uasset
+Content/Assets/Maps/
+Content/Assets/Mountains/
+Content/Assets/Sounds/
 !Content/Blueprints/
 !Content/__ExternalActors__/
 !Content/__ExternalObjects__/
