@@ -52,4 +52,7 @@ private:
 	UMissionDescription* MissionDescription;
 
 	bool bOverlayIsShown = false;
+
+public:
+	FORCEINLINE ULevelSelection* GetLevelSelectionScreen() const { return SelectLevelScreen; }
 };

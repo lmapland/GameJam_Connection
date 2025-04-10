@@ -12,9 +12,11 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterTransport);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLevelComplete, bool, bLevelPassed);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnConnectionMade);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnNewLevel, int32, InTotalConnectionBoxes, int32, InMaxHits, TArray<int32>, InRequiredObjects, TArray<int32>, InObjectCounts);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnLevelStatsUpdated, int32, CurrentLevel, int32, NumCompletions, float, CompletionTime);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnInitializeLevelStats, TArray<int32>, NumCompletions, TArray<float>, CompletionTime, bool, bFinalLevelUnlocked);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnLevelStatsUpdated, int32, CurrentLevel, int32, NumCompletions, float, CompletionTime, bool, bFinalLevelUnlocked);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStartLevel, int32, InCurrentLevel);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerHitTooManyTimes);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnThreeLevelsComplete, bool, bOnInitialize);
 
 class AStartZone;
 class AXtionsCharacter;
@@ -45,7 +47,7 @@ public:
 	void ConnectionComplete(int32 LevelOfBox);
 	
 	UFUNCTION(BlueprintCallable)
-	void Setup(TArray<int32> InLevelCompletions, TArray<float> InLevelTimes);
+	void Setup(TArray<int32> InLevelCompletions, TArray<float> InLevelTimes, bool InbFinalLevelUnlocked);
 
 	UFUNCTION()
 	void SkipCurrentLevel();
@@ -56,6 +58,8 @@ public:
 	void TransportPlayer(int32 ToLevel);
 
 	void EndLevelPrematurely();
+
+	void StartFinalLevel();
 
 	UPROPERTY()
 	FOnLaunchTutorial OnLaunchTutorial;
@@ -73,6 +77,9 @@ public:
 	FOnNewLevel OnNewLevel;
 
 	UPROPERTY()
+	FOnInitializeLevelStats OnInitializeLevelStats;
+
+	UPROPERTY()
 	FOnLevelStatsUpdated OnLevelStatsUpdated;
 
 	UPROPERTY()
@@ -81,7 +88,11 @@ public:
 	UPROPERTY()
 	FOnPlayerHitTooManyTimes OnPlayerHitTooManyTimes;
 
+	UPROPERTY()
+	FOnThreeLevelsComplete OnThreeLevelsComplete;
+
 private:
+	bool BaseLevelsAreComplete();
 	void EndTheGame();
 	void TransportPlayer();
 	void RestartLevel();
@@ -91,6 +102,9 @@ private:
 
 	UFUNCTION()
 	void PlayerHit();
+
+	void UpdateLevelStats();
+	void SetFinalLevelUnlocked(bool bOnInitialize);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes", meta = (AllowPrivateAccess = "true"))
 	int32 CurrentLevel = 1;
@@ -119,6 +133,7 @@ private:
 
 	/* # of completions per level */
 	TArray<int32> LevelCompletions;
+	bool bAllLevelsAreComplete = false;
 
 	float InitialTime = 0.f;
 	float LevelTime = 0.f;
@@ -126,4 +141,5 @@ private:
 public:
 	FORCEINLINE TArray<int32> GetLevelCompletions() const { return LevelCompletions; }
 	FORCEINLINE TArray<float> GetLevelTimes() const { return LevelTimes; }
+	FORCEINLINE bool GetFinalLevelUnlocked() const { return bAllLevelsAreComplete; }
 };

@@ -16,10 +16,9 @@ void UXtionsGameInstance::InitHUD(AXtionsCharacter* InCharacter, APlayerControll
 	HUD->InitOverlay(Character, LevelManager);
 	LevelManager->OnLevelStatsUpdated.AddDynamic(this, &UXtionsGameInstance::LevelStatsUpdated);
 
-	LevelManager->Setup(GetLevelCompletions(), GetLevelTimes());
+	LevelManager->Setup(GetLevelCompletions(), GetLevelTimes(), GetFinalLevelUnlocked());
 	LevelCompletions = LevelManager->GetLevelCompletions();
 	LevelTimes = LevelManager->GetLevelTimes();
-	SetLevelStats(LevelCompletions, LevelTimes);
 }
 
 void UXtionsGameInstance::SetShowOverlay(bool bShowOverlay)
@@ -32,15 +31,15 @@ void UXtionsGameInstance::ShowLevelSelectionScreen()
 	HUD->ShowLevelSelectionScreen();
 }
 
-void UXtionsGameInstance::LevelStatsUpdated(int32 InLevel, int32 NumCompletions, float CompletionTime)
+void UXtionsGameInstance::LevelStatsUpdated(int32 InLevel, int32 NumCompletions, float CompletionTime, bool bFinalLevelUnlocked)
 {
-	UE_LOG(LogTemp, Warning, TEXT("UXtionsGameInstance::LevelStatsUpdated()"));
+	//UE_LOG(LogTemp, Warning, TEXT("UXtionsGameInstance::LevelStatsUpdated()"));
 	if (InLevel > LevelCompletions.Num() || InLevel > LevelTimes.Num())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UXtionsGameInstance::LevelStatsUpdated(): InLevel out of bounds for arrays"));
+		UE_LOG(LogTemp, Warning, TEXT("UXtionsGameInstance::LevelStatsUpdated(): InLevel out of bounds for arrays. InLevel: %i"), InLevel);
 		return;
 	}
 	LevelCompletions[InLevel - 1] = NumCompletions;
 	LevelTimes[InLevel - 1] = CompletionTime;
-	SetLevelStats(LevelCompletions, LevelTimes);
+	SetLevelStats(LevelCompletions, LevelTimes, bFinalLevelUnlocked);
 }

@@ -8,16 +8,20 @@
 
 void ULevelSelection::Setup(ULevelManager* InLevelManager)
 {
+	InLevelManager->OnInitializeLevelStats.AddDynamic(this, &ULevelSelection::LevelStatsInitialized);
 	InLevelManager->OnLevelStatsUpdated.AddDynamic(this, &ULevelSelection::LevelStatsUpdated);
+	InLevelManager->OnThreeLevelsComplete.AddDynamic(this, &ULevelSelection::DisplayFinalLevel);
 	MissionDescription->Setup(this);
 
 	CompletionTimeTextBlocks.Add(Level1CompletionTime);
 	CompletionTimeTextBlocks.Add(Level2CompletionTime);
 	CompletionTimeTextBlocks.Add(Level3CompletionTime);
+	CompletionTimeTextBlocks.Add(Level4CompletionTime);
 
 	NumCompletionTextBlocks.Add(Level1NumCompletions);
 	NumCompletionTextBlocks.Add(Level2NumCompletions);
 	NumCompletionTextBlocks.Add(Level3NumCompletions);
+	NumCompletionTextBlocks.Add(Level4NumCompletions);
 }
 
 void ULevelSelection::ShowMissionDescription(int32 InLevel)
@@ -27,7 +31,7 @@ void ULevelSelection::ShowMissionDescription(int32 InLevel)
 	MissionDescription->SetFocus();
 }
 
-void ULevelSelection::LevelStatsUpdated(int32 InLevel, int32 NumCompletions, float CompletionTime)
+void ULevelSelection::LevelStatsUpdated(int32 InLevel, int32 NumCompletions, float CompletionTime, bool InbShowFinalLevel)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("ULevelSelection::LevelStatsUpdated(): %i, %f"), NumCompletions, CompletionTime);
 	int32 CurrentLevelIndex = InLevel - 1;
@@ -63,3 +67,17 @@ void ULevelSelection::LevelStatsUpdated(int32 InLevel, int32 NumCompletions, flo
 	}
 	NumCompletionTextBlocks[CurrentLevelIndex]->SetText(FText::FromString(FString::Printf(TEXT("%i"), NumCompletions)));
 }
+
+void ULevelSelection::LevelStatsInitialized(TArray<int32> InCompletions, TArray<float> InTimes, bool InbShowFinalLevel)
+{
+	for (int i = 0; i < InCompletions.Num(); i++)
+	{
+		LevelStatsUpdated(i + 1, InCompletions[i], InTimes[i], InbShowFinalLevel);
+	}
+}
+
+//void ULevelSelection::PrerequisiteLevelscomplete()
+//{
+//	UE_LOG(LogTemp, Warning, TEXT("ULevelSelection::PrerequisiteLevelscomplete()"));
+//	bFinalLevelAvailable = true;
+//}

@@ -30,7 +30,6 @@ ULevelManager::ULevelManager()
 	Levels.Add(FLevelInfo());
 	Levels[2].Connections = 1;
 	Levels[2].Location = FVector(26635.f, -15786.f, 4194.f);
-	//Levels[2].Location = FVector(29357.f, -18224.f, 5135.f);
 	Levels[2].Rotation = FRotator(0.f, -117.f, 0.f);
 	Levels[2].RequiredObjects.Add(4);
 	Levels[2].RequiredObjects.Add(3);
@@ -38,25 +37,15 @@ ULevelManager::ULevelManager()
 	Levels[2].ObjectCounts.Add(3);
 
 	// Index 3 - Level 4
-	//Levels.Add(FLevelInfo());
-	//Levels[3].Connections = 2;
-	//Levels[3].Location = FVector(18196.f, 6319.f, 5960.f);
-	//Levels[3].Rotation = FRotator(0.f, 90.f, 0.f);
-
-	/*
-	// Index 4 - Level 5
-	Levels.Add(1);
-	StartingLocations.Add(FVector(19370.f, 9710.f, 6120.f));
-	StartingRotations.Add(FRotator(0.f, 0.f, 0.f));
-
-	// Index 5 - Level 6
-	Levels.Add(1);
-	StartingLocations.Add(FVector(18160.f, 6360.f, 5960.f));
-	StartingRotations.Add(FRotator(0.f, 0.f, 0.f));
-	*/
+	Levels.Add(FLevelInfo());
+	Levels[3].Connections = 1;
+	Levels[3].Location = FVector(54494.f, -2692.f, 3214.f);
+	Levels[3].Rotation = FRotator(0.f, -90.f, 0.f);
+	Levels[3].RequiredObjects.Add(1); // TODO: Battery
+	Levels[3].ObjectCounts.Add(1);
 }
 
-void ULevelManager::Setup(TArray<int32> InLevelCompletions, TArray<float> InLevelTimes)
+void ULevelManager::Setup(TArray<int32> InLevelCompletions, TArray<float> InLevelTimes, bool InbFinalLevelUnlocked)
 {
 	LevelCompletions = InLevelCompletions;
 	LevelTimes = InLevelTimes;
@@ -105,7 +94,12 @@ void ULevelManager::Setup(TArray<int32> InLevelCompletions, TArray<float> InLeve
 		{
 			LevelTimes.Add(MAX_FLT);
 		}
-		OnLevelStatsUpdated.Broadcast(i + 1, LevelCompletions[i], LevelTimes[i]);
+	}
+	OnInitializeLevelStats.Broadcast(LevelCompletions, LevelTimes, BaseLevelsAreComplete());
+
+	if (InbFinalLevelUnlocked)
+	{
+		SetFinalLevelUnlocked(true);
 	}
 }
 
@@ -171,17 +165,20 @@ void ULevelManager::ConnectionComplete(int32 LevelOfBox)
 
 		if (bLevelSuccessfullyCompleted)
 		{
-			// TODO time the level and update that time here
-			LevelCompletions[CurrentLevel - 1] += 1;
-			LevelTime = GetWorld()->GetTimeSeconds() - InitialTime;
-			if (LevelTime < LevelTimes[CurrentLevel - 1])
-			{
-				LevelTimes[CurrentLevel - 1] = LevelTime;
-			}
-			//UE_LOG(LogTemp, Warning, TEXT("ConnectionComplete(): %f - %f = %f seconds"), GetWorld()->GetTimeSeconds(), InitialTime, LevelTime);
-			OnLevelStatsUpdated.Broadcast(CurrentLevel, LevelCompletions[CurrentLevel - 1], LevelTimes[CurrentLevel - 1]);
+			UpdateLevelStats();
+			bool bFinalLevelUnlocked = BaseLevelsAreComplete();
+			OnLevelStatsUpdated.Broadcast(CurrentLevel, LevelCompletions[CurrentLevel - 1], LevelTimes[CurrentLevel - 1], bFinalLevelUnlocked);
 
 			CurrentLevel++;
+
+			/* This should only be called in the case where the last prerequisite level has JUST been unlocked,
+			   right now by this level completion we're handling this very second */
+			if (!bAllLevelsAreComplete && bFinalLevelUnlocked)
+			{
+				SetFinalLevelUnlocked(false);
+				return;
+			}
+
 			if (CurrentLevel == MaxLevel)
 			{
 				GetWorld()->GetTimerManager().SetTimer(TransportTimer, this, &ULevelManager::EndTheGame, TransportTime);
@@ -196,11 +193,22 @@ void ULevelManager::ConnectionComplete(int32 LevelOfBox)
 		{
 			OnCharacterTransport.Broadcast();
 			GetWorld()->GetTimerManager().SetTimer(TransportTimer, this, &ULevelManager::RestartLevel, TransportTime);
-			// Figure out how to bind params to a Timer and call a different function instead
-			// That different function needs to call TearDownLevel and then StartLevel(CurrentLevel) instead
-			// Since the player is restarting the current level. Yuck.
 		}
 	}
+}
+
+bool ULevelManager::BaseLevelsAreComplete()
+{
+	bool bComplete = true;
+	for (int i = 0; i < MaxLevel - 1; i++)
+	{
+		if (LevelCompletions[i] == 0)
+		{
+			bComplete = false;
+			break;
+		}
+	}
+	return bComplete;
 }
 
 void ULevelManager::EndTheGame()
@@ -216,7 +224,7 @@ void ULevelManager::RestartLevel()
 
 void ULevelManager::TearDownLevel()
 {
-	UE_LOG(LogTemp, Warning, TEXT("ULevelManager::TearDownLevel(): %i"), LastLevelPlayed);
+	//UE_LOG(LogTemp, Warning, TEXT("ULevelManager::TearDownLevel(): %i"), LastLevelPlayed);
 	TArray<AActor*> AllActors;
 	FString LevelString("");
 	LevelString.AppendInt(LastLevelPlayed);
@@ -245,6 +253,26 @@ void ULevelManager::PlayerHit()
 		OnPlayerHitTooManyTimes.Broadcast();
 		Player->Die();
 	}
+}
+
+void ULevelManager::UpdateLevelStats()
+{
+	LevelCompletions[CurrentLevel - 1] += 1;
+	LevelTime = GetWorld()->GetTimeSeconds() - InitialTime;
+	if (LevelTime < LevelTimes[CurrentLevel - 1])
+	{
+		LevelTimes[CurrentLevel - 1] = LevelTime;
+	}
+	//UE_LOG(LogTemp, Warning, TEXT("ConnectionComplete(): %f - %f = %f seconds"), GetWorld()->GetTimeSeconds(), InitialTime, LevelTime);
+}
+
+void ULevelManager::SetFinalLevelUnlocked(bool bOnInitialize)
+{
+	//UE_LOG(LogTemp, Warning, TEXT("ULevelManager::SetFinalLevelUnlocked(): All prerequisite levels are complete"));
+	MaxLevel = 5;
+	OnThreeLevelsComplete.Broadcast(bOnInitialize);
+	Player->EnableDashing();
+	bAllLevelsAreComplete = true;
 }
 
 void ULevelManager::StartLevel(int32 LevelToStart)
@@ -285,7 +313,6 @@ void ULevelManager::TransportPlayer()
 {
 	TearDownLevel();
 	StartLevel(CurrentLevel);
-	//TransportPlayer(CurrentLevel);
 }
 
 void ULevelManager::TransportPlayer(int32 ToLevel)
@@ -299,4 +326,10 @@ void ULevelManager::EndLevelPrematurely()
 {
 	OnCharacterTransport.Broadcast();
 	RestartLevel();
+}
+
+void ULevelManager::StartFinalLevel()
+{
+	TearDownLevel();
+	StartLevel(4);
 }

@@ -63,29 +63,12 @@ void AXtionsCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	PlayerController = Cast<APlayerController>(GetController());
-	/*if (PlayerController)
-	{
-		UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
-		if (Subsystem)
-		{
-			Subsystem->AddMappingContext(CharMappingContext, 0);
-		}
-	}*/
 
 	GameInstance = Cast<UXtionsGameInstance>(GetGameInstance());
 	if (GameInstance)
 	{
 		GameInstance->InitHUD(this, PlayerController);
 	}
-	/*TArray<int32> Completions = GameInstance->GetLevelCompletions();
-	if (Completions.Num() < 3)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("There are only %i Level Completions"), Completions.Num());
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Level Completions: %i, %i, %i"), Completions[0], Completions[1], Completions[2]);
-	}*/
 
 	FInputModeUIOnly InputMode;
 	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
@@ -208,7 +191,7 @@ void AXtionsCharacter::Dodge(const FInputActionValue& value)
 
 void AXtionsCharacter::Dash()
 {
-	if (bIsDashing) return;
+	if (!bCanDash || bIsDashing) return;
 	if (NumDashes == 0)
 	{
 		OnDashesUpdated.Broadcast(NumDashes);
@@ -216,6 +199,7 @@ void AXtionsCharacter::Dash()
 	}
 
 	bIsDashing = true;
+	NumDashes -= 1;
 	GetCharacterMovement()->GravityScale = 0.f;
 	OnDashesUpdated.Broadcast(NumDashes);
 
@@ -321,7 +305,7 @@ bool AXtionsCharacter::ReadyToRepair()
 	{
 		if (CurrentObjectCounts[i] < ObjectCounts[i])
 		{
-			UE_LOG(LogTemp, Warning, TEXT("ReadyToRepair(): Object %i: %i < %i"), RequiredObjects[i], CurrentObjectCounts[i], ObjectCounts[i]);
+			//UE_LOG(LogTemp, Warning, TEXT("ReadyToRepair(): Object %i: %i < %i"), RequiredObjects[i], CurrentObjectCounts[i], ObjectCounts[i]);
 			bReady = false;
 			break;
 		}
@@ -420,6 +404,9 @@ void AXtionsCharacter::TransportCharacter(FLevelInfo& LevelInfo)
 
 	NumDodges = LevelInfo.Dodges;
 	OnDodgesUpdated.Broadcast(NumDodges);
+	// We do not store different dashes per level - each level gets the same number
+	NumDashes = 10;
+	OnDashesUpdated.Broadcast(NumDashes);
 
 	Hits = 0;
 	RequiredObjects.Empty();
@@ -472,4 +459,9 @@ void AXtionsCharacter::PlaySound(USoundBase* SoundToPlay)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, SoundToPlay, GetActorLocation());
 	}
+}
+
+void AXtionsCharacter::EnableDashing()
+{
+	bCanDash = true;
 }

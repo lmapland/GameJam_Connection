@@ -74,7 +74,7 @@ void AConnectionLine::Prepare()
 	//UE_LOG(LogTemp, Warning, TEXT("ConnectionLine::Prepare(): Object name: %s"), *GetName());
 	if (bIsFirst && bIsReady)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("ConnectionLine::Prepare(): %s Filling"), *GetName());
+		//UE_LOG(LogTemp, Warning, TEXT("ConnectionLine::Prepare(): %s Filling"), *GetName());
 		Fill();
 	}
 }

@@ -30,6 +30,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UTextBlock* Level3Text;
 
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UTextBlock* Level4Text;
+
 protected:
 	UFUNCTION(BlueprintCallable)
 	void Continue();

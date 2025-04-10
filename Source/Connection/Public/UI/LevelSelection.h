@@ -34,6 +34,9 @@ public:
 	UTextBlock* Level3NumCompletions;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UTextBlock* Level4NumCompletions;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UTextBlock* Level1CompletionTime;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
@@ -43,11 +46,17 @@ public:
 	UTextBlock* Level3CompletionTime;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UTextBlock* Level4CompletionTime;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	ULevelMissionDescription* MissionDescription;
 
 protected:
 	UFUNCTION(BlueprintCallable)
 	void ShowMissionDescription(int32 InLevel);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void DisplayFinalLevel(bool bOnInitialize);
 
 	/* Lowest time in seconds player took to play the level. [0] == level 1 */
 	UPROPERTY(BlueprintReadOnly)
@@ -60,9 +69,15 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	int32 LevelSelected = -1;
 
+	UPROPERTY(BlueprintReadWrite)
+	bool bFinalLevelAvailable = false;
+
 private:
 	UFUNCTION()
-	void LevelStatsUpdated(int32 InLevel, int32 NumCompletions, float CompletionTime);
+	void LevelStatsUpdated(int32 InLevel, int32 NumCompletions, float CompletionTime, bool InbShowFinalLevel);
+
+	UFUNCTION()
+	void LevelStatsInitialized(TArray<int32> InCompletions, TArray<float> InTimes, bool InbShowFinalLevel);
 
 	TArray<UTextBlock*> CompletionTimeTextBlocks;
 

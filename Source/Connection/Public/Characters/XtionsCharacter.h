@@ -49,6 +49,7 @@ public:
 	virtual void Landed(const FHitResult& Hit) override;
 	void OpenLevelSelect();
 	void Die();
+	void EnableDashing();
 
 	UFUNCTION()
 	virtual void OnItemSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -60,7 +61,7 @@ public:
 	int32 NumDodges = 10;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Attributes")
-	int32 NumDashes = 5;
+	int32 NumDashes = 10;
 
 	UPROPERTY()
 	FOnCharacterHitSignature OnCharacterHit;
@@ -195,6 +196,7 @@ private:
 	bool bIsDodging = false;
 	bool bIsJumping = false;
 	bool bIsDashing = false;
+	bool bCanDash = false;
 
 	int32 Hits = 0;
 

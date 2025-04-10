@@ -19,9 +19,11 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 	LevelManager->OnLevelComplete.AddDynamic(this, &UOverlayWidgetController::DisplayLevelCompleteText);
 	LevelManager->OnNewLevel.AddDynamic(this, &UOverlayWidgetController::UpdateNewLevelInfo);
 	LevelManager->OnPlayerHitTooManyTimes.AddDynamic(this, &UOverlayWidgetController::DisplayEndLevel);
+	LevelManager->OnThreeLevelsComplete.AddDynamic(this, &UOverlayWidgetController::DisplayDashInfo);
 	Character->OnCharacterHit.AddDynamic(this, &UOverlayWidgetController::DisplayHitsText);
 	Character->OnOverlappingBox.AddDynamic(this, &UOverlayWidgetController::DisplayInterationText);
 	Character->OnDodgesUpdated.AddDynamic(this, &UOverlayWidgetController::DisplayDodgesText);
+	Character->OnDashesUpdated.AddDynamic(this, &UOverlayWidgetController::DisplayDashesText);
 	Character->OnKeyBindingsNeedRebuilt.AddDynamic(this, &UOverlayWidgetController::SendRebuildKeyBindings);
 	Character->OnHoveredInteractable.AddDynamic(this, &UOverlayWidgetController::DisplayHoverText);
 	Character->OnPickedUpInteractable.AddDynamic(this, &UOverlayWidgetController::UpdateInteractableInfo);
@@ -39,6 +41,11 @@ void UOverlayWidgetController::BroadcastInitialValues()
 void UOverlayWidgetController::EndLevel()
 {
 	LevelManager->EndLevelPrematurely();
+}
+
+void UOverlayWidgetController::StartFinalLevel()
+{
+	LevelManager->StartFinalLevel();
 }
 
 void UOverlayWidgetController::DisplayTutorialText()
@@ -84,6 +91,11 @@ void UOverlayWidgetController::DisplayDodgesText(int32 Amount)
 	OnUpdateDodgesText.Broadcast(Amount);
 }
 
+void UOverlayWidgetController::DisplayDashesText(int32 Amount)
+{
+	OnUpdateDashesText.Broadcast(Amount);
+}
+
 void UOverlayWidgetController::UpdateNewLevelInfo(int32 InTotalConnectionBoxes, int32 InMaxHits, TArray<int32> InRequiredObjects, TArray<int32> InObjectCounts)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("UOverlayWidgetController::UpdateNewLevelInfo(): InTotalConnectionBoxes: %i, InMaxHits: %i"), InTotalConnectionBoxes, InMaxHits);
@@ -118,4 +130,9 @@ void UOverlayWidgetController::DisplayEndLevel()
 void UOverlayWidgetController::UpdateIntraMissionText(int32 InMissionState, bool bInNewLevel)
 {
 	OnUpdateIntraMissionText.Broadcast(InMissionState, bInNewLevel);
+}
+
+void UOverlayWidgetController::DisplayDashInfo(bool bOnInitialize)
+{
+	OnDisplayDashInfo.Broadcast(bOnInitialize);
 }

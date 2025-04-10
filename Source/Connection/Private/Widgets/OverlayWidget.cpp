@@ -34,12 +34,14 @@ void UOverlayWidget::SetController(UOverlayWidgetController* InWidgetController)
 	WidgetController->OnShowInteractionText.AddDynamic(this, &UOverlayWidget::DisplayInteractionText);
 	WidgetController->OnInitializeDodges.AddDynamic(this, &UOverlayWidget::DisplayDodgesText);
 	WidgetController->OnUpdateDodgesText.AddDynamic(this, &UOverlayWidget::DisplayDodgesText);
+	WidgetController->OnUpdateDashesText.AddDynamic(this, &UOverlayWidget::DisplayDashesText);
 	WidgetController->OnRebuildKeyBindings.AddDynamic(this, &UOverlayWidget::RebuildKeyBindings);
 	WidgetController->OnUpdateHoverText.AddDynamic(this, &UOverlayWidget::DisplayHoverText);
 	WidgetController->OnUpdateInteractableInfo.AddDynamic(this, &UOverlayWidget::UpdateInteractableInfo);
 	WidgetController->OnDisplayRepairNotReadyText.AddDynamic(this, &UOverlayWidget::DisplayRepairNotReadyText);
 	WidgetController->OnLevelIsOver.AddDynamic(this, &UOverlayWidget::LaunchMissionFailedScreen);
 	WidgetController->OnUpdateIntraMissionText.AddDynamic(this, &UOverlayWidget::UpdateIntraMissionText);
+	WidgetController->OnDisplayDashInfo.AddDynamic(this, &UOverlayWidget::LaunchDashInfo);
 }
 
 void UOverlayWidget::DisplayConnectionText()
@@ -137,18 +139,6 @@ void UOverlayWidget::DisplayInteractionText(bool bIsVisible, bool bReadyToRepair
 
 void UOverlayWidget::DisplayDodgesText(int32 Dodges)
 {
-	// Play "you gained dodges" animation
-	/*if (CurrentDodges != -1)
-	{
-		int32 GainedDodges = Dodges - CurrentDodges;
-		if (GainedDodges > 0)
-		{
-			FString NewDodgesText = FString::Printf(TEXT("+%i"), GainedDodges);
-			DodgesAnimText->SetText(FText::FromString(NewDodgesText));
-			PlayAnimation(NewDodgeAnimation);
-		}
-	}*/
-
 	if (Dodges == 0 && CurrentDodges == 0)
 	{
 		FString NoDodgesLeftString = FString::Printf(TEXT("No Dodges left!"));
@@ -164,27 +154,22 @@ void UOverlayWidget::DisplayDodgesText(int32 Dodges)
 	}
 }
 
-//void UOverlayWidget::DisplayJumpsText(int32 Jumps)
-//{
-//	if (CurrentJumps != -1)
-//	{
-//		int32 GainedJumps = Jumps - CurrentJumps;
-//		if (GainedJumps > 0)
-//		{
-//			FString NewJumpsText = FString::Printf(TEXT("+%i"), GainedJumps);
-//			JumpsAnimText->SetText(FText::FromString(NewJumpsText));
-//			PlayAnimation(NewJumpAnimation);
-//		}
-//	}
-//
-//	if (JumpsText)
-//	{
-//		FString JumpsString = FString::Printf(TEXT("Jumps: %i"), Jumps);
-//		JumpsText->SetText(FText::FromString(JumpsString));
-//	}
-//
-//	CurrentJumps = Jumps;
-//}
+void UOverlayWidget::DisplayDashesText(int32 Dashes)
+{
+	if (Dashes == 0 && CurrentDashes == 0)
+	{
+		FString NoDashesLeftString = FString::Printf(TEXT("No Dashes left!"));
+		Section2Text->SetText(FText::FromString(NoDashesLeftString));
+		Section2->SetVisibility(ESlateVisibility::Visible);
+		GetWorld()->GetTimerManager().SetTimer(Section2Handle, this, &UOverlayWidget::HideSection2Text, PlayerErrorTime);
+	}
+	else
+	{
+		FString DashesString = FString::Printf(TEXT("%i"), Dashes);
+		DashesText->SetText(FText::FromString(DashesString));
+		CurrentDashes = Dashes;
+	}
+}
 
 void UOverlayWidget::DisplayNewLevelInfo(int32 InTotalConnectionBoxes, int32 InMaxHits, TArray<int32> InRequiredObjects, TArray<int32> InObjectCounts)
 {
@@ -242,6 +227,11 @@ void UOverlayWidget::LaunchMissionFailedScreen()
 	DisplayMissionFailedScreen(this);
 }
 
+void UOverlayWidget::LaunchDashInfo(bool bOnInitialize)
+{
+	DisplayDashInfo(this, bOnInitialize);
+}
+
 void UOverlayWidget::UpdateIntraMissionText(int32 InMissionState, bool bInNewLevel)
 {
 	if (bNoUpdateMissionText && !bInNewLevel)
@@ -283,6 +273,11 @@ void UOverlayWidget::SetHits()
 void UOverlayWidget::EndLevel()
 {
 	WidgetController->EndLevel();
+}
+
+void UOverlayWidget::StartFinalLevel()
+{
+	WidgetController->StartFinalLevel();
 }
 
 void UOverlayWidget::HideSection1Text()

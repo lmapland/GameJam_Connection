@@ -29,18 +29,15 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	TArray<float> GetLevelTimes();
 
-	/*UFUNCTION(BlueprintImplementableEvent)
-	void SetLevelCompletions(TArray<int32>);
+	UFUNCTION(BlueprintImplementableEvent)
+	bool GetFinalLevelUnlocked();
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void SetLevelTimes(TArray<float>);*/
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void SetLevelStats(const TArray<int32>& InLevelCompletions, const TArray<float>& InLevelTimes);
+	void SetLevelStats(const TArray<int32>& InLevelCompletions, const TArray<float>& InLevelTimes, bool bFinalLevelUnlocked);
 
 private:
 	UFUNCTION()
-	void LevelStatsUpdated(int32 InLevel, int32 NumCompletions, float CompletionTime);
+	void LevelStatsUpdated(int32 InLevel, int32 NumCompletions, float CompletionTime, bool bFinalLevelUnlocked);
 
 	UPROPERTY()
 	ULevelManager* LevelManager;
@@ -60,5 +57,5 @@ private:
 
 public:
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE ULevelManager* GetLevelManager() { return LevelManager; }
+	FORCEINLINE ULevelManager* GetLevelManager() const { return LevelManager; }
 };

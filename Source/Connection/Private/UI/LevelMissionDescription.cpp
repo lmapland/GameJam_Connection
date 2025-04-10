@@ -13,6 +13,7 @@ void ULevelMissionDescription::Setup(ULevelSelection* InLevelSelection)
 	LevelTexts.Add(Level1Text);
 	LevelTexts.Add(Level2Text);
 	LevelTexts.Add(Level3Text);
+	LevelTexts.Add(Level4Text);
 }
 
 void ULevelMissionDescription::ShowLevelText(int32 InLevel)
@@ -23,7 +24,6 @@ void ULevelMissionDescription::ShowLevelText(int32 InLevel)
 
 void ULevelMissionDescription::Continue()
 {
-	//RemoveFromParent();
 	SetVisibility(ESlateVisibility::Hidden);
 	LevelSelection->LoadLevel();
 }

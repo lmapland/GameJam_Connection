@@ -42,17 +42,14 @@ public:
 	UFUNCTION()
 	void UpdateHits();
 
-	//UFUNCTION()
-	//void DisplayWinText();
-
 	UFUNCTION()
 	void DisplayInteractionText(bool bIsVisible, bool bReadyToRepair);
 
 	UFUNCTION()
 	void DisplayDodgesText(int32 Dodges);
 
-	//UFUNCTION()
-	//void DisplayJumpsText(int32 Jumps);
+	UFUNCTION()
+	void DisplayDashesText(int32 Dashes);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayerHurt();
@@ -68,6 +65,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void EndLevel();
+
+	UFUNCTION(BlueprintCallable)
+	void StartFinalLevel();
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UOverlay* Section1;
@@ -97,6 +97,9 @@ public:
 	UTextBlock* DodgesText;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UTextBlock* DashesText;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UTextBlock* HitsText;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
@@ -112,6 +115,7 @@ public:
 	int32 Hits = 0;
 
 	int32 CurrentDodges = -1;
+	int32 CurrentDashes = -1;
 
 	UPROPERTY(BlueprintReadOnly)
 	bool GameOver = false;
@@ -128,6 +132,9 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void DisplayRepairNotReadyText();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void DisplayDashInfo(UOverlayWidget* InOverlayWidget, bool bOnInitialize);
 
 private:
 	void HideSection1Text();
@@ -148,6 +155,9 @@ private:
 
 	UFUNCTION()
 	void LaunchMissionFailedScreen();
+
+	UFUNCTION()
+	void LaunchDashInfo(bool bOnInitialize);
 
 	UFUNCTION()
 	void UpdateIntraMissionText(int32 InMissionState, bool bInNewLevel);
