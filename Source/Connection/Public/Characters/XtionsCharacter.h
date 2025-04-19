@@ -162,6 +162,7 @@ private:
 	void LineTraceForInteractable();
 	bool PerformLineTrace(FHitResult& HitResult); //ETraceTypeQuery TraceTypeQuery = ETraceTypeQuery::TraceTypeQuery4
 	bool ReadyToRepair();
+	bool CanPickUpInteractable(int32 InteractableID, int32 NumAlreadyHeld);
 
 	UFUNCTION(BlueprintCallable)
 	void DodgeFinish();
@@ -203,6 +204,7 @@ private:
 	TArray<int32> RequiredObjects;
 	TArray<int32> ObjectCounts;
 	TArray<int32> CurrentObjectCounts;
+	TArray<int32> HeavyItems;
 
 	float LineTraceDistance = 500.f;
 	AActor* HoveredInteractable = nullptr;

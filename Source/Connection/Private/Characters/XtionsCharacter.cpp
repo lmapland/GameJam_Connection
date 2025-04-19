@@ -75,6 +75,8 @@ void AXtionsCharacter::BeginPlay()
 	PlayerController->SetInputMode(InputMode);
 	PlayerController->SetShowMouseCursor(true);
 
+	HeavyItems.Add(5);
+
 	ItemSphere->OnComponentBeginOverlap.AddDynamic(this, &AXtionsCharacter::OnItemSphereOverlap);
 	ItemSphere->OnComponentEndOverlap.AddDynamic(this, &AXtionsCharacter::OnItemSphereEndOverlap);
 }
@@ -114,25 +116,29 @@ void AXtionsCharacter::Interact(const FInputActionValue& value)
 	if (OverlappingActors.Num() > 0)
 	{
 		FHitResult HitResult;
-		if (PerformLineTrace(HitResult))
+		if (!PerformLineTrace(HitResult)) return;
+
+		if (IInteractable* Interactable = Cast<IInteractable>(HitResult.GetActor()))
 		{
-			if (IInteractable* Interactable = Cast<IInteractable>(HitResult.GetActor()))
+			int32 Index = -1;
+			int32 InteractableID = Interactable->GetInteractableID();
+			if (RequiredObjects.Find(InteractableID, Index))
 			{
-				int32 Index = -1;
-				if (RequiredObjects.Find(Interactable->GetInteractableID(), Index))
+				if (CanPickUpInteractable(InteractableID, CurrentObjectCounts[Index]))
 				{
 					CurrentObjectCounts[Index] += 1;
-					//UE_LOG(LogTemp, Warning, TEXT("Interact(): Picked up 1 additional ObjectID %i. Total: %i"), Interactable->GetInteractableID(), CurrentObjectCounts[Index]);
+					//UE_LOG(LogTemp, Warning, TEXT("Interact(): Picked up 1 additional ObjectID %i. Total: %i"), InteractableID, CurrentObjectCounts[Index]);
 					bool bReadyForHighlight = CurrentObjectCounts[Index] >= ObjectCounts[Index] ? true : false;
-					OnPickedUpInteractable.Broadcast(Interactable->GetInteractableID(), CurrentObjectCounts[Index], ObjectCounts[Index], bReadyForHighlight);
+					OnPickedUpInteractable.Broadcast(InteractableID, CurrentObjectCounts[Index], ObjectCounts[Index], bReadyForHighlight);
 
 					if (ReadyToRepair())
 					{
 						OnUpdateIntraMission.Broadcast(1, false);
 					}
+
+					Interactable->Interact();
 				}
 
-				Interactable->Interact();
 				return;
 			}
 		}
@@ -312,6 +318,14 @@ bool AXtionsCharacter::ReadyToRepair()
 	}
 
 	return bReady;
+}
+
+bool AXtionsCharacter::CanPickUpInteractable(int32 InteractableID, int32 NumAlreadyHeld)
+{
+	// Checking that this is not a heavy item, and if it is, that the character is not already carrying one
+	if (NumAlreadyHeld == 0) return true;
+	if (HeavyItems.Contains(InteractableID)) return false;
+	return true;
 }
 
 void AXtionsCharacter::OpenLevelSelect()

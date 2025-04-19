@@ -38,10 +38,10 @@ ULevelManager::ULevelManager()
 
 	// Index 3 - Level 4
 	Levels.Add(FLevelInfo());
-	Levels[3].Connections = 1;
-	Levels[3].Location = FVector(54494.f, -2692.f, 3214.f);
+	Levels[3].Connections = 4;
+	Levels[3].Location = FVector(65217.f, 6765.f, 3301.f);
 	Levels[3].Rotation = FRotator(0.f, -90.f, 0.f);
-	Levels[3].RequiredObjects.Add(1); // TODO: Battery
+	Levels[3].RequiredObjects.Add(5);
 	Levels[3].ObjectCounts.Add(1);
 }
 
